@@ -2,19 +2,6 @@
 
 A static, phone-friendly New York Comic Con 2026 schedule + Javits navigation helper. It needs no server, database, build step, package manager, API key, or command line.
 
-## Upload to GitHub Pages
-
-1. Create a new GitHub repository.
-2. Click **Add file → Upload files**.
-3. Drag **the contents of this folder** into the upload area. `index.html` must be at the repository root.
-4. Commit the files.
-5. Open **Settings → Pages**.
-6. Under **Build and deployment**, choose **Deploy from a branch**.
-7. Choose `main` and `/ (root)`, then save.
-8. GitHub will show the public Pages URL after deployment.
-
-The app uses relative paths, so it works at URLs such as `https://YOURNAME.github.io/nycc2026-planner/`.
-
 ## What is included
 
 - Official 2026 NYCC map images extracted from the supplied PDF: overview, Levels 1–5, show floor, and Artist Alley/Writers Block.
