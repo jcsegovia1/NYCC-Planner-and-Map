@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#171717">
+  <meta name="description" content="A lightweight NYCC 2026 schedule and indoor navigation helper using the official floor maps.">
+  <title>NYCC 2026 Planner</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">OCT 8–11 · JAVITS CENTER</div>
+      <h1>NYCC 2026 Planner</h1>
+    </div>
+    <div id="offlineBadge" class="status-pill" title="The app caches maps after the first visit">Offline-ready</div>
+  </header>
+
+  <nav class="tabs" aria-label="App sections">
+    <button class="tab active" data-tab="schedule" aria-selected="true">Schedule</button>
+    <button class="tab" data-tab="navigate" aria-selected="false">Navigate</button>
+    <button class="tab" data-tab="map" aria-selected="false">Maps</button>
+    <button class="tab" data-tab="about" aria-selected="false">About</button>
+  </nav>
+
+  <main>
+    <section id="tab-schedule" class="panel active" aria-labelledby="scheduleHeading">
+      <div class="section-head">
+        <div>
+          <h2 id="scheduleHeading">My schedule</h2>
+          <p>Tap a location to route there. Events you add here stay on this device.</p>
+        </div>
+        <button id="addEventBtn" class="primary">+ Add event</button>
+      </div>
+
+      <div id="dayTabs" class="day-tabs" role="tablist" aria-label="Convention day"></div>
+      <div id="scheduleList" class="schedule-list" aria-live="polite"></div>
+
+      <div class="utility-row">
+        <button id="exportBtn" class="secondary">Export my events</button>
+        <label class="file-button secondary">
+          Import events
+          <input id="importInput" type="file" accept="application/json,.json">
+        </label>
+      </div>
+    </section>
+
+    <section id="tab-navigate" class="panel" aria-labelledby="navigateHeading">
+      <div class="section-head">
+        <div>
+          <h2 id="navigateHeading">Navigate</h2>
+          <p>GPS works outside. Indoors, set the closest landmark and the app routes between mapped areas.</p>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <article class="card">
+          <h3>Outside / approaching Javits</h3>
+          <p class="muted">Your location stays in your browser. It is only sent to Google or Apple Maps if you tap one of those links.</p>
+          <div id="gpsStatus" class="gps-status">Location not enabled.</div>
+          <div class="button-row">
+            <button id="gpsBtn" class="primary">Use my live location</button>
+            <button id="gpsStopBtn" class="secondary" disabled>Stop</button>
+          </div>
+          <div id="gpsDetails" class="metric-grid" hidden>
+            <div><span class="metric-label">Distance to Javits</span><strong id="distanceToJavits">—</strong></div>
+            <div><span class="metric-label">GPS accuracy</span><strong id="gpsAccuracy">—</strong></div>
+          </div>
+          <div class="button-row map-links">
+            <a id="googleMapsLink" class="secondary link-button" target="_blank" rel="noopener">Google Maps</a>
+            <a id="appleMapsLink" class="secondary link-button" target="_blank" rel="noopener">Apple Maps</a>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>Inside Javits</h3>
+          <label for="currentLocationSelect">I’m currently near</label>
+          <select id="currentLocationSelect"></select>
+          <label for="destinationSelect">Take me to</label>
+          <select id="destinationSelect"></select>
+          <div class="button-row">
+            <button id="routeBtn" class="primary">Show indoor route</button>
+            <button id="swapBtn" class="secondary">Swap</button>
+          </div>
+          <p class="small-note">Indoor GPS usually cannot identify your floor or hallway reliably, so this uses a known landmark as your start point.</p>
+        </article>
+      </div>
+
+      <article id="routeCard" class="card route-card" hidden>
+        <div class="route-summary">
+          <div>
+            <span class="eyebrow">INDOOR ROUTE</span>
+            <h3 id="routeTitle">—</h3>
+          </div>
+          <div class="eta"><strong id="routeMinutes">—</strong><span>estimated min</span></div>
+        </div>
+        <ol id="routeSteps" class="route-steps"></ol>
+        <button id="viewRouteMapBtn" class="secondary">View route on map</button>
+      </article>
+    </section>
+
+    <section id="tab-map" class="panel" aria-labelledby="mapHeading">
+      <div class="section-head map-head">
+        <div>
+          <h2 id="mapHeading">Official 2026 maps</h2>
+          <p>Markers and route lines are approximate overlays on the official floor-map images.</p>
+        </div>
+        <select id="mapSelect" aria-label="Choose map"></select>
+      </div>
+
+      <div class="map-tools">
+        <form id="boothSearchForm" class="booth-search">
+          <label for="boothSearch">Find a show-floor booth</label>
+          <div class="inline-input">
+            <input id="boothSearch" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="e.g. 3425">
+            <button class="primary" type="submit">Find</button>
+          </div>
+          <span id="boothSearchMsg" class="small-note" aria-live="polite">570 booth labels are indexed from the supplied map.</span>
+        </form>
+      </div>
+
+      <div id="mapViewport" class="map-viewport">
+        <img id="mapImage" alt="NYCC floor map">
+        <svg id="mapOverlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div id="mapMarkers" class="map-markers"></div>
+      </div>
+      <div id="mapLegend" class="map-legend"></div>
+    </section>
+
+    <section id="tab-about" class="panel" aria-labelledby="aboutHeading">
+      <h2 id="aboutHeading">How this works</h2>
+      <div class="about-grid">
+        <article class="card">
+          <h3>No server required</h3>
+          <p>This is a static site. Drop the files into a GitHub repository, enable GitHub Pages, and it works over HTTPS with no API key or database.</p>
+        </article>
+        <article class="card">
+          <h3>Outdoor location</h3>
+          <p>The browser Geolocation API can track your position while this page is open. The app calculates your distance to Javits and can hand off walking directions to your maps app.</p>
+        </article>
+        <article class="card">
+          <h3>Indoor routing</h3>
+          <p>The indoor route is a small graph based on the official map’s visible connections and access notes. Pick your nearest landmark, then choose a destination.</p>
+        </article>
+        <article class="card warning-card">
+          <h3>Important limitation</h3>
+          <p>This is a personal navigation helper, not an official NYCC app. Indoor marker positions and walking-time estimates are approximate. Follow posted signs and staff instructions.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="eventDialog">
+    <form id="eventForm" method="dialog">
+      <div class="dialog-head">
+        <div>
+          <span class="eyebrow">PERSONAL EVENT</span>
+          <h2>Add to my schedule</h2>
+        </div>
+        <button id="closeDialogBtn" type="button" class="icon-button" aria-label="Close">×</button>
+      </div>
+
+      <label for="eventTitle">Title</label>
+      <input id="eventTitle" required placeholder="Panel, signing, meetup…">
+
+      <div class="form-grid">
+        <label>Date
+          <select id="eventDate" required>
+            <option value="2026-10-08">Thu, Oct 8</option>
+            <option value="2026-10-09">Fri, Oct 9</option>
+            <option value="2026-10-10">Sat, Oct 10</option>
+            <option value="2026-10-11">Sun, Oct 11</option>
+          </select>
+        </label>
+        <label>Start
+          <input id="eventStart" type="time" required>
+        </label>
+        <label>End
+          <input id="eventEnd" type="time">
+        </label>
+      </div>
+
+      <label for="eventLocation">Mapped location</label>
+      <select id="eventLocation"></select>
+
+      <label for="eventBooth">Or show-floor booth number</label>
+      <input id="eventBooth" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="Optional, e.g. 3425">
+
+      <label for="eventNotes">Notes</label>
+      <textarea id="eventNotes" rows="3" placeholder="Line up early, reservation info, etc."></textarea>
+
+      <div class="dialog-actions">
+        <button id="cancelEventBtn" type="button" class="secondary">Cancel</button>
+        <button type="submit" class="primary">Save event</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="data/locations.js"></script>
+  <script src="data/booths.js"></script>
+  <script src="data/events.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "NYCC 2026 Planner",
+  "short_name": "NYCC Planner",
+  "description": "Personal NYCC 2026 schedule and Javits indoor navigation helper.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f2ed",
+  "theme_color": "#171717",
+  "icons": [
+    {"src":"assets/icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"assets/icon-512.png","sizes":"512x512","type":"image/png"}
+  ]
+}
