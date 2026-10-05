@@ -1,5 +1,7 @@
 # NYCC 2026 Planner
 
+https://jcsegovia1.github.io/NYCC-Planner-and-Map/
+
 A static, phone-friendly New York Comic Con 2026 schedule + Javits navigation helper. It needs no server, database, build step, package manager, API key, or command line.
 
 ## What is included
