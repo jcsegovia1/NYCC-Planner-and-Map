@@ -12,10 +12,14 @@
   const STORAGE_SAVED = 'nycc2026-friday-saved-v1';
   const STORAGE_START = 'nycc2026-current-location-v1';
   const STORAGE_EVENT_OVERRIDES = 'nycc2026-friday-event-overrides-v1';
+  const STORAGE_EXHIBITOR_TODOS = 'nycc2026-friday-exhibitor-todos-v1';
+  const STORAGE_EXHIBITOR_DONE = 'nycc2026-friday-exhibitor-done-v1';
 
   let personalEvents = loadArray(STORAGE_EVENTS).filter(e => !e.date || e.date === FRIDAY).map(e => ({ ...e, date: FRIDAY }));
   let savedOfficialIds = loadArray(STORAGE_SAVED).filter(id => typeof id === 'string');
   let eventOverrides = loadObject(STORAGE_EVENT_OVERRIDES);
+  let exhibitorTodoIds = loadArray(STORAGE_EXHIBITOR_TODOS).filter(id => typeof id === 'string');
+  let exhibitorDone = loadObject(STORAGE_EXHIBITOR_DONE);
   let currentLocationId = localStorage.getItem(STORAGE_START) || 'l1_hall_center';
   let destinationId = 'l1_main_stage';
   let activeRoute = null;
@@ -29,6 +33,45 @@
   const activities = () => Array.isArray(window.NYCC_ACTIVITIES) ? window.NYCC_ACTIVITIES : [];
   const guestHighlights = () => Array.isArray(window.NYCC_GUEST_HIGHLIGHTS) ? window.NYCC_GUEST_HIGHLIGHTS : [];
   const exhibitors = () => Array.isArray(window.NYCC_EXHIBITORS) ? window.NYCC_EXHIBITORS : [];
+
+  function exhibitorId(item) {
+    return String(item.id || item.booth || item.artistTable || item.name || '')
+      .trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+
+  function isExhibitorTodo(item) {
+    return exhibitorTodoIds.includes(exhibitorId(item));
+  }
+
+  function toggleExhibitorTodo(item) {
+    const id = exhibitorId(item);
+    if (!id) return;
+    if (exhibitorTodoIds.includes(id)) {
+      exhibitorTodoIds = exhibitorTodoIds.filter(value => value !== id);
+      delete exhibitorDone[id];
+      toast('Removed from Friday to-do');
+    } else {
+      exhibitorTodoIds.push(id);
+      exhibitorDone[id] = false;
+      toast('Added to Friday to-do');
+    }
+    savePlan();
+    renderMyFriday();
+    renderExhibitors();
+  }
+
+  function setExhibitorDone(item, done) {
+    const id = exhibitorId(item);
+    exhibitorDone[id] = Boolean(done);
+    savePlan();
+    renderMyFriday();
+    renderExhibitors();
+  }
+
+  function myExhibitorTodos() {
+    const byId = new Map(exhibitors().map(item => [exhibitorId(item), item]));
+    return exhibitorTodoIds.map(id => byId.get(id)).filter(Boolean);
+  }
 
   function loadArray(key) {
     try {
@@ -52,6 +95,8 @@
     localStorage.setItem(STORAGE_EVENTS, JSON.stringify(personalEvents));
     localStorage.setItem(STORAGE_SAVED, JSON.stringify(savedOfficialIds));
     localStorage.setItem(STORAGE_EVENT_OVERRIDES, JSON.stringify(eventOverrides));
+    localStorage.setItem(STORAGE_EXHIBITOR_TODOS, JSON.stringify(exhibitorTodoIds));
+    localStorage.setItem(STORAGE_EXHIBITOR_DONE, JSON.stringify(exhibitorDone));
   }
 
   function escapeHTML(value) {
@@ -185,39 +230,124 @@
   function renderMyFriday() {
     const list = el('myFridayList');
     const items = myFridayItems();
+    const todos = myExhibitorTodos();
     const conflict = conflictInfo(items);
     const conflicts = conflict.ids;
     el('savedCount').textContent = String(items.length);
+    el('todoCount').textContent = String(todos.filter(item => !exhibitorDone[exhibitorId(item)]).length);
     el('conflictCount').textContent = String(conflict.pairs);
     list.innerHTML = '';
 
     if (!items.length) {
-      list.innerHTML = `<div class="empty-state"><h3>Your Friday is open</h3><p>Browse the Friday schedule and save panels, screenings and meetups. You can also add personal signings, meals or booth stops.</p><button id="emptyBrowseBtn" class="primary" type="button">Browse Friday events</button></div>`;
+      list.innerHTML = `<div class="empty-state compact-empty"><h3>No timed plans yet</h3><p>Save Friday panels, photo ops and activities to build the timed part of your day.</p><button id="emptyBrowseBtn" class="primary" type="button">Browse Friday events</button></div>`;
       el('emptyBrowseBtn').addEventListener('click', () => switchTab('browse'));
+    } else {
+      items.forEach(item => {
+        const card = document.createElement('article');
+        card.className = `event-card${conflicts.has(item.id) ? ' has-conflict' : ''}`;
+
+        const time = document.createElement('div');
+        time.className = 'event-time';
+        time.textContent = formatTime(item.start);
+        if (item.end) {
+          const end = document.createElement('span');
+          end.textContent = `to ${formatTime(item.end)}`;
+          time.appendChild(end);
+        }
+
+        const body = document.createElement('div');
+        body.className = 'event-card-body';
+        const photoPlanInfo = item.photoOp ? `<div class="photo-plan-note"><strong>Official session:</strong> ${escapeHTML(photoOfficialLabel({ ...item, start: item.officialStart || item.start }))}${item.planNotes ? ` · ${escapeHTML(item.planNotes)}` : ''}</div>` : '';
+        body.innerHTML = `${conflicts.has(item.id) ? '<span class="conflict-label">TIME CONFLICT</span>' : ''}<div class="event-title">${escapeHTML(item.title || 'Untitled item')}</div><div class="event-meta">${escapeHTML(eventLocationLabel(item))}</div>${item.category ? `<div class="event-notes">${escapeHTML(item.category)}</div>` : ''}${item.notes ? `<div class="event-notes">${escapeHTML(item.notes)}</div>` : ''}${photoPlanInfo}`;
+
+        const actions = document.createElement('div');
+        actions.className = 'event-actions';
+        if (item.locationId || item.booth) {
+          const nav = document.createElement('button');
+          nav.className = 'primary';
+          nav.type = 'button';
+          nav.textContent = 'Navigate';
+          nav.addEventListener('click', () => navigateToItem(item));
+          actions.appendChild(nav);
+        }
+        if (item.photoOp && item.sourceType === 'official') {
+          const editTime = document.createElement('button');
+          editTime.className = 'secondary';
+          editTime.type = 'button';
+          editTime.textContent = 'Edit my time';
+          editTime.addEventListener('click', () => {
+            const original = events().find(event => event.id === item.id);
+            if (original) openPhotoPlanDialog(original);
+          });
+          actions.appendChild(editTime);
+        }
+        if (item.sourceUrl) {
+          const source = document.createElement('a');
+          source.className = 'secondary link-button small-action';
+          source.target = '_blank';
+          source.rel = 'noopener';
+          source.href = item.sourceUrl;
+          source.textContent = 'Details ↗';
+          actions.appendChild(source);
+        }
+        const remove = document.createElement('button');
+        remove.className = 'secondary';
+        remove.type = 'button';
+        remove.textContent = 'Remove';
+        remove.addEventListener('click', () => {
+          if (item.sourceType === 'official') { savedOfficialIds = savedOfficialIds.filter(id => id !== item.id); delete eventOverrides[item.id]; }
+          else personalEvents = personalEvents.filter(event => event.id !== item.id);
+          savePlan();
+          renderMyFriday();
+          renderBrowse();
+          toast('Removed from My Friday');
+        });
+        actions.appendChild(remove);
+        card.append(time, body, actions);
+        list.appendChild(card);
+      });
+    }
+
+    const todoList = el('fridayTodoList');
+    todoList.innerHTML = '';
+    if (!todos.length) {
+      todoList.innerHTML = `<div class="empty-state compact-empty"><h3>No booth stops saved</h3><p>Save exhibitors or Artist Alley stops as untimed Friday to-dos. They won't create schedule conflicts.</p><button id="emptyExhibitorsBtn" class="secondary" type="button">Browse exhibitors</button></div>`;
+      el('emptyExhibitorsBtn').addEventListener('click', () => switchTab('exhibitors'));
       return;
     }
 
-    items.forEach(item => {
+    todos.forEach(item => {
+      const id = exhibitorId(item);
+      const done = Boolean(exhibitorDone[id]);
       const card = document.createElement('article');
-      card.className = `event-card${conflicts.has(item.id) ? ' has-conflict' : ''}`;
+      card.className = `todo-card${done ? ' done' : ''}`;
 
-      const time = document.createElement('div');
-      time.className = 'event-time';
-      time.textContent = formatTime(item.start);
-      if (item.end) {
-        const end = document.createElement('span');
-        end.textContent = `to ${formatTime(item.end)}`;
-        time.appendChild(end);
-      }
+      const check = document.createElement('label');
+      check.className = 'todo-check';
+      check.innerHTML = `<input type="checkbox" ${done ? 'checked' : ''}><span class="todo-box" aria-hidden="true"></span><span class="sr-only">${done ? 'Mark not done' : 'Mark done'}</span>`;
+      check.querySelector('input').addEventListener('change', event => setExhibitorDone(item, event.target.checked));
 
       const body = document.createElement('div');
-      body.className = 'event-card-body';
-      const photoPlanInfo = item.photoOp ? `<div class="photo-plan-note"><strong>Official session:</strong> ${escapeHTML(photoOfficialLabel({ ...item, start: item.officialStart || item.start }))}${item.planNotes ? ` · ${escapeHTML(item.planNotes)}` : ''}</div>` : '';
-      body.innerHTML = `${conflicts.has(item.id) ? '<span class="conflict-label">TIME CONFLICT</span>' : ''}<div class="event-title">${escapeHTML(item.title || 'Untitled item')}</div><div class="event-meta">${escapeHTML(eventLocationLabel(item))}</div>${item.category ? `<div class="event-notes">${escapeHTML(item.category)}</div>` : ''}${item.notes ? `<div class="event-notes">${escapeHTML(item.notes)}</div>` : ''}${photoPlanInfo}`;
+      body.className = 'todo-body';
+      const spot = item.booth ? `Booth ${item.booth} · Level 3 Show Floor` : item.artistTable ? `Artist Alley ${item.artistTable}` : eventLocationLabel(item);
+      body.innerHTML = `<div class="event-title">${escapeHTML(item.name)}</div><div class="event-meta">${escapeHTML(spot)}</div>${item.category ? `<div class="event-notes">${escapeHTML(item.category)}</div>` : ''}`;
 
       const actions = document.createElement('div');
       actions.className = 'event-actions';
-      if (item.locationId || item.booth) {
+      if (item.booth && window.NYCC_BOOTHS?.[item.booth]) {
+        const show = document.createElement('button');
+        show.className = 'secondary';
+        show.type = 'button';
+        show.textContent = 'Map';
+        show.addEventListener('click', () => showBoothOnMap(item.booth));
+        actions.appendChild(show);
+        const nav = document.createElement('button');
+        nav.className = 'primary';
+        nav.type = 'button';
+        nav.textContent = 'Navigate';
+        nav.addEventListener('click', () => navigateToItem({ booth: item.booth }));
+        actions.appendChild(nav);
+      } else if (item.locationId) {
         const nav = document.createElement('button');
         nav.className = 'primary';
         nav.type = 'button';
@@ -225,41 +355,15 @@
         nav.addEventListener('click', () => navigateToItem(item));
         actions.appendChild(nav);
       }
-      if (item.photoOp && item.sourceType === 'official') {
-        const editTime = document.createElement('button');
-        editTime.className = 'secondary';
-        editTime.type = 'button';
-        editTime.textContent = 'Edit my time';
-        editTime.addEventListener('click', () => {
-          const original = events().find(event => event.id === item.id);
-          if (original) openPhotoPlanDialog(original);
-        });
-        actions.appendChild(editTime);
-      }
-      if (item.sourceUrl) {
-        const source = document.createElement('a');
-        source.className = 'secondary link-button small-action';
-        source.target = '_blank';
-        source.rel = 'noopener';
-        source.href = item.sourceUrl;
-        source.textContent = 'Details ↗';
-        actions.appendChild(source);
-      }
       const remove = document.createElement('button');
       remove.className = 'secondary';
       remove.type = 'button';
       remove.textContent = 'Remove';
-      remove.addEventListener('click', () => {
-        if (item.sourceType === 'official') { savedOfficialIds = savedOfficialIds.filter(id => id !== item.id); delete eventOverrides[item.id]; }
-        else personalEvents = personalEvents.filter(event => event.id !== item.id);
-        savePlan();
-        renderMyFriday();
-        renderBrowse();
-        toast('Removed from My Friday');
-      });
+      remove.addEventListener('click', () => toggleExhibitorTodo(item));
       actions.appendChild(remove);
-      card.append(time, body, actions);
-      list.appendChild(card);
+
+      card.append(check, body, actions);
+      todoList.appendChild(card);
     });
   }
 
@@ -458,16 +562,27 @@
     const query = el('exhibitorSearch').value.trim().toLowerCase();
     const filtered = exhibitors().filter(item => [item.name, item.booth, item.artistTable, item.category, item.note].join(' ').toLowerCase().includes(query));
     const list = el('exhibitorList');
+    el('exhibitorResultCount').textContent = `${filtered.length} exhibitor / artist entr${filtered.length === 1 ? 'y' : 'ies'} shown · ${exhibitors().length} indexed`;
     list.innerHTML = '';
     filtered.forEach(item => {
       const card = document.createElement('article');
       card.className = 'browse-card exhibitor-card';
       const spot = item.booth ? `Booth ${item.booth}` : item.artistTable ? `Artist Alley ${item.artistTable}` : eventLocationLabel(item);
-      card.innerHTML = `<div class="browse-card-top"><div><span class="eyebrow">${escapeHTML(item.category || 'EXHIBITOR')}</span><h3>${escapeHTML(item.name)}</h3></div>${item.booth ? `<span class="booth-pill">#${escapeHTML(item.booth)}</span>` : ''}</div><p class="location-line">${escapeHTML(spot)}</p><p>${escapeHTML(item.note || '')}</p><div class="card-actions"></div>`;
+      const saved = isExhibitorTodo(item);
+      const done = Boolean(exhibitorDone[exhibitorId(item)]);
+      card.innerHTML = `<div class="browse-card-top"><div><span class="eyebrow">${escapeHTML(item.category || 'EXHIBITOR')}</span><h3>${escapeHTML(item.name)}</h3></div>${item.booth ? `<span class="booth-pill">#${escapeHTML(item.booth)}</span>` : ''}</div><p class="location-line">${escapeHTML(spot)}</p><p>${escapeHTML(item.note || '')}</p>${saved ? `<div class="todo-status ${done ? 'done' : ''}">${done ? '✓ Visited / done' : '★ On Friday to-do'}</div>` : ''}<div class="card-actions"></div>`;
       const actions = card.querySelector('.card-actions');
+
+      const todo = document.createElement('button');
+      todo.className = saved ? 'saved-button' : 'primary';
+      todo.type = 'button';
+      todo.textContent = saved ? '✓ Saved to-do' : '+ Friday to-do';
+      todo.addEventListener('click', () => toggleExhibitorTodo(item));
+      actions.appendChild(todo);
+
       if (item.booth && window.NYCC_BOOTHS?.[item.booth]) {
         const show = document.createElement('button');
-        show.className = 'primary';
+        show.className = 'secondary';
         show.type = 'button';
         show.textContent = 'Show booth';
         show.addEventListener('click', () => showBoothOnMap(item.booth));
@@ -480,7 +595,7 @@
         actions.appendChild(nav);
       } else if (item.locationId) {
         const nav = document.createElement('button');
-        nav.className = 'primary';
+        nav.className = 'secondary';
         nav.type = 'button';
         nav.textContent = 'Navigate';
         nav.addEventListener('click', () => navigateToItem(item));
@@ -845,7 +960,7 @@
   }
 
   function exportPlan() {
-    const data = JSON.stringify({ version: 3, date: FRIDAY, savedOfficialIds, eventOverrides, personalEvents }, null, 2);
+    const data = JSON.stringify({ version: 4, date: FRIDAY, savedOfficialIds, eventOverrides, personalEvents, exhibitorTodoIds, exhibitorDone }, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -869,10 +984,13 @@
           personalEvents = Array.isArray(parsed.personalEvents) ? parsed.personalEvents.filter(e => e && e.title && e.start).map(e => ({ ...e, date: FRIDAY })) : [];
           savedOfficialIds = Array.isArray(parsed.savedOfficialIds) ? parsed.savedOfficialIds.filter(id => events().some(event => event.id === id)) : [];
           eventOverrides = parsed.eventOverrides && typeof parsed.eventOverrides === 'object' && !Array.isArray(parsed.eventOverrides) ? parsed.eventOverrides : {};
+          exhibitorTodoIds = Array.isArray(parsed.exhibitorTodoIds) ? parsed.exhibitorTodoIds.filter(id => typeof id === 'string') : [];
+          exhibitorDone = parsed.exhibitorDone && typeof parsed.exhibitorDone === 'object' && !Array.isArray(parsed.exhibitorDone) ? parsed.exhibitorDone : {};
         } else throw new Error('Invalid plan');
         savePlan();
         renderMyFriday();
         renderBrowse();
+        renderExhibitors();
         toast('Friday plan imported');
       } catch (_) {
         toast('Could not import that JSON file');
@@ -951,7 +1069,7 @@
 
   function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=9').catch(() => { el('offlineBadge').textContent = 'Friday-first · Online only'; });
+      navigator.serviceWorker.register('./sw.js?v=10').catch(() => { el('offlineBadge').textContent = 'Friday-first · Online only'; });
     } else el('offlineBadge').textContent = 'Friday-first · Online only';
   }
 
@@ -966,6 +1084,7 @@
   el('cancelPhotoPlanBtn').addEventListener('click', closePhotoPlanDialog);
   el('removePhotoPlanBtn').addEventListener('click', removePhotoPlan);
     el('browseFridayBtn').addEventListener('click', () => switchTab('browse'));
+    el('browseExhibitorsBtn').addEventListener('click', () => switchTab('exhibitors'));
     el('exportBtn').addEventListener('click', exportPlan);
     el('importInput').addEventListener('change', event => importPlan(event.target.files[0]));
     el('eventSearch').addEventListener('input', renderBrowse);
