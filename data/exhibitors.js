@@ -1,0 +1,16 @@
+window.NYCC_EXHIBITORS = [
+  { name: 'Magic: The Gathering', booth: '1301', category: 'Gaming', note: 'Magic demos, product and photo activation; Friday panel is also indexed in Browse.', sourceUrl: 'https://www.magic.gg/news/magic-the-gathering-at-new-york-comic-con-2026' },
+  { name: 'Avatar Legends', booth: '1723', category: 'Studio / Activation', note: 'Avatar photo opportunities, swag and Friday tie-ins around Seven Havens.', sourceUrl: 'https://www.newyorkcomiccon.com/en-us/schedule/friday.html' },
+  { name: 'Marvel', booth: '2153', category: 'Comics / Studio', note: 'Main Marvel show-floor presence.', sourceUrl: 'https://www.newyorkcomiccon.com/en-us/exhibitors-and-artists.html' },
+  { name: 'WEBTOON', booth: '2335', category: 'Comics / Digital', note: 'FOG LAND immersive photo zone, creator appearances and prizes.', sourceUrl: 'https://ir.webtoon.com/news-releases/news-release-details/webtoon-entertainment-returns-new-york-comic-con-immersive-fog' },
+  { name: 'Marvel Comics App', booth: '2435', category: 'Comics / Digital', note: 'Preview of the new Marvel Comics app ahead of launch.', sourceUrl: 'https://about.webtoon.com/press-release/260' },
+  { name: 'Marvel Merch / Heroes & Villains', booth: '2453', category: 'Merchandise', note: 'Marvel apparel and convention merchandise adjacent to the main Marvel area.', sourceUrl: 'https://www.newyorkcomiccon.com/en-us/exhibitors-and-artists.html' },
+  { name: 'DC', booth: '4365', category: 'Comics / Studio', note: 'DC publishing, merch, creator appearances and digitally queued activities.', sourceUrl: 'https://www.dc.com/nycc' },
+  { name: 'Dark Horse Comics', booth: '4451', category: 'Comics', note: 'Free creator signings, convention exclusives, giveaways and books.', sourceUrl: 'https://www.newyorkcomiccon.com/en-us/exhibitors-and-artists.html' },
+  { name: 'Mad Cave Studios', booth: '4457', category: 'Comics', note: 'Friday signings, exclusives and the John Cusack / Momo panel.', sourceUrl: 'https://madcavestudios.com/news/booth-signing-and-programming-schedule-for-mad-cave-studios-at-new-york-comic-con-2026/' },
+  { name: 'DC Glambot Experience', booth: '4657', category: 'Cosplay / Activation', note: '360° slow-motion cosplay activation next to the DC booth.', sourceUrl: 'https://www.dc.com/nycc' },
+  { name: 'Alyson Tabbitha', booth: 'EH11', category: 'Cosplay Central', locationId: 'l1_cosplay', note: 'Featured Cosplay Central presence in Hall 1E.', sourceUrl: 'https://www.newyorkcomiccon.com/en-us/things-to-do/cosplay-central.html' },
+  { name: 'Artist Alley', category: 'Artist Alley', locationId: 'l1_artist_alley', note: 'Browse independent and professional artists in Hall B. The supplied official Artist Alley map is built into Maps.', sourceUrl: 'https://www.newyorkcomiccon.com/en-us/exhibitors-and-artists/artist-alley.html' },
+  { name: 'Writers Block', category: 'Writers Block', locationId: 'l1_writers_block', note: 'Literary creators and writers in Hall B.', sourceUrl: 'https://www.newyorkcomiccon.com/en-us/exhibitors-and-artists/artist-alley.html' },
+  { name: 'Jim Zub', category: 'Artist Alley', artistTable: 'I-33', locationId: 'l1_artist_alley', note: 'Artist Alley table I-33; appearing Friday and also involved with the Matt Dinniman spotlight.', sourceUrl: 'https://www.jimzub.com/zubby-newsletter-176-omen-bound/' }
+];

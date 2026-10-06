@@ -23,6 +23,11 @@ window.NYCC_LOCATIONS = {
   l1_cosplay: { name: 'Cosplay Central', floor: 'Level 1', map: 'level1', x: 23, y: 64, category: 'Area' },
   l1_vip: { name: 'VIP Lounge', floor: 'Level 1', map: 'level1', x: 16, y: 66, category: 'Lounge' },
   l1_family: { name: 'Family HQ & Workshops', floor: 'Level 1', map: 'level1', x: 45, y: 84, category: 'Area' },
+  l1_room1b02: { name: 'Room 1B02', floor: 'Level 1 • Hall B', map: 'level1', x: 68, y: 66, category: 'Panel room' },
+  l1_room1b02_04: { name: 'Room 1B02–04', floor: 'Level 1 • Hall B', map: 'level1', x: 68, y: 63, category: 'Panel room' },
+  l1_room1c03: { name: 'Room 1C03', floor: 'Level 1', map: 'level1', x: 58, y: 68, category: 'Panel room' },
+  l1_pride_lounge: { name: 'Pride Lounge · Rooms 1C01–02', floor: 'Level 1', map: 'level1', x: 64, y: 78, category: 'Lounge' },
+  l1_gaming: { name: 'Gaming Side Quest · Hall 1E', floor: 'Level 1', map: 'level1', x: 29, y: 72, category: 'Gaming' },
   l1_north_core: { name: 'Level 1 north-side access', short: 'L1 North Access', floor: 'Level 1', map: 'level1', x: 72, y: 58, hidden: true },
   l1_south_core: { name: 'Level 1 south-side access', short: 'L1 South Access', floor: 'Level 1', map: 'level1', x: 34, y: 69, hidden: true },
 
@@ -66,6 +71,11 @@ window.NYCC_EDGES = [
   ['l1_hall_center','l1_cosplay',3],
   ['l1_hall_center','l1_vip',4],
   ['l1_hall_center','l1_family',4],
+  ['l1_hall_center','l1_room1b02',4],
+  ['l1_hall_center','l1_room1b02_04',4],
+  ['l1_hall_center','l1_room1c03',3],
+  ['l1_hall_center','l1_pride_lounge',4],
+  ['l1_hall_center','l1_gaming',3],
   ['l1_hall_center','l1_south_core',1],
   ['l1_hall_center','l1_north_core',2],
 
