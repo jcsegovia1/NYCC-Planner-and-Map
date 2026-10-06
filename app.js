@@ -31,11 +31,12 @@
   let gpsWatchId = null;
   let latestPosition = null;
   let exhibitorRenderLimit = 80;
+  let guestRenderLimit = 60;
 
   const el = id => document.getElementById(id);
   const events = () => Array.isArray(window.NYCC_EVENTS) ? window.NYCC_EVENTS.filter(e => e.date === FRIDAY) : [];
   const activities = () => Array.isArray(window.NYCC_ACTIVITIES) ? window.NYCC_ACTIVITIES : [];
-  const guestHighlights = () => Array.isArray(window.NYCC_GUEST_HIGHLIGHTS) ? window.NYCC_GUEST_HIGHLIGHTS : [];
+  const officialGuests = () => Array.isArray(window.NYCC_GUESTS) ? window.NYCC_GUESTS : [];
   const exhibitors = () => [...(Array.isArray(window.NYCC_EXHIBITORS) ? window.NYCC_EXHIBITORS : []), ...(Array.isArray(window.NYCC_EXHIBITOR_EXTRAS) ? window.NYCC_EXHIBITOR_EXTRAS : []), ...customExhibitors];
 
   function exhibitorId(item) {
@@ -582,69 +583,246 @@
     });
   }
 
+  function guestBoothNumbers(guest) {
+    return [...new Set((String(guest.booth || '').match(/\b\d{4}\b/g) || []))];
+  }
+
+  function guestPriceLine(guest) {
+    const bits = [];
+    if (guest.autographPrice) bits.push(`Autograph $${Number(guest.autographPrice).toFixed(0)}`);
+    if (guest.photoOpPrice) bits.push(`Photo op $${Number(guest.photoOpPrice).toFixed(0)}`);
+    if (guest.tablePhotoPrice) bits.push(`Table photo $${Number(guest.tablePhotoPrice).toFixed(0)}`);
+    return bits.join(' · ');
+  }
+
   function allGuestRecords() {
-    const map = new Map();
-    guestHighlights().forEach(guest => map.set(guest.name.toLowerCase(), { ...guest, highlighted: true, eventTitles: [], eventIds: [] }));
+    const eventByScheduleId = new Map(
+      events().filter(event => event.scheduleId).map(event => [String(event.scheduleId), event])
+    );
+    const eventsByGuestName = new Map();
+
     events().forEach(event => {
       (event.guests || []).forEach(name => {
-        const key = name.toLowerCase();
-        const existing = map.get(key) || { name, type: '', knownFor: '', fridayNote: '', highlighted: false, eventTitles: [], eventIds: [] };
-        existing.eventTitles = existing.eventTitles || [];
-        existing.eventIds = existing.eventIds || [];
-        if (!existing.eventTitles.includes(event.title)) existing.eventTitles.push(event.title);
-        if (!existing.eventIds.includes(event.id)) existing.eventIds.push(event.id);
-        existing.locationId = existing.locationId || event.locationId;
-        existing.sourceUrl = existing.sourceUrl || event.sourceUrl;
-        existing.hasPhotoOp = existing.hasPhotoOp || event.photoOp || event.category === 'Photo Op';
-        map.set(key, existing);
+        const key = String(name || '').trim().toLowerCase();
+        if (!key) return;
+        if (!eventsByGuestName.has(key)) eventsByGuestName.set(key, []);
+        eventsByGuestName.get(key).push(event);
       });
     });
-    map.forEach(record => {
-      if (!record.type) record.type = record.hasPhotoOp ? 'Photo ops / Friday programming' : 'Friday panel / event';
+
+    return officialGuests().map(guest => {
+      const matches = [];
+      const seen = new Set();
+
+      (guest.fridayScheduleIds || []).forEach(scheduleId => {
+        const event = eventByScheduleId.get(String(scheduleId));
+        if (event && !seen.has(event.id)) {
+          matches.push(event);
+          seen.add(event.id);
+        }
+      });
+
+      [guest.name, guest.altName].filter(Boolean).forEach(name => {
+        (eventsByGuestName.get(String(name).toLowerCase()) || []).forEach(event => {
+          if (!seen.has(event.id)) {
+            matches.push(event);
+            seen.add(event.id);
+          }
+        });
+      });
+
+      matches.sort((a, b) => (a.start || '99:99').localeCompare(b.start || '99:99') || a.title.localeCompare(b.title));
+
+      return {
+        ...guest,
+        eventIds: matches.map(event => event.id),
+        eventTitles: matches.map(event => event.title),
+        fridayRelevant: Boolean(guest.fridayRelevant || matches.length),
+        hasPhotoOp: matches.some(event => event.photoOp || event.category === 'Photo Op') || (guest.categories || []).includes('Autographing and Photo Ops'),
+        hasAutograph: matches.some(event => /autograph|signing/i.test(event.title)) || (guest.categories || []).includes('Autographing and Photo Ops')
+      };
     });
-    return [...map.values()].sort((a, b) => Number(b.highlighted) - Number(a.highlighted) || a.name.localeCompare(b.name));
+  }
+
+  function guestMatchesFilter(guest, filter) {
+    const activeFriday = guest.fridayRelevant && !guest.canceled;
+    if (filter === 'featured') return activeFriday && guest.featured;
+    if (filter === 'photoops') return activeFriday && (guest.hasPhotoOp || guest.hasAutograph);
+    if (filter === 'artist') return activeFriday && (guest.categories || []).includes('Artist Alley');
+    if (filter === 'literary') return activeFriday && ((guest.categories || []).includes('Literary') || (guest.categories || []).includes('Writers Block'));
+    if (filter === 'movies') return activeFriday && (guest.categories || []).includes('Movies/TV');
+    if (filter === 'comics') return activeFriday && (guest.categories || []).includes('Comics');
+    if (filter === 'canceled') return guest.canceled;
+    if (filter === 'all') return !guest.canceled;
+    return activeFriday;
+  }
+
+  function guestSearchText(guest) {
+    return [
+      guest.name, guest.altName, guest.type, guest.knownFor, guest.bio, guest.booth,
+      ...(guest.days || []), ...(guest.categories || []), ...(guest.eventTitles || [])
+    ].filter(Boolean).join(' ').toLowerCase();
+  }
+
+  function guestImageElement(guest) {
+    const wrap = document.createElement('div');
+    wrap.className = 'guest-photo-wrap';
+
+    const initials = String(guest.name || '?')
+      .split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase();
+    const fallback = document.createElement('div');
+    fallback.className = 'guest-photo-fallback';
+    fallback.textContent = initials || '?';
+    wrap.appendChild(fallback);
+
+    const src = guest.image?.med || guest.image?.small || guest.image?.big || guest.image?.thumb;
+    if (src) {
+      const img = document.createElement('img');
+      img.className = 'guest-photo';
+      img.src = src;
+      img.alt = `${guest.name} — official NYCC guest photo`;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.referrerPolicy = 'no-referrer';
+      img.addEventListener('load', () => wrap.classList.add('loaded'));
+      img.addEventListener('error', () => img.remove());
+      wrap.appendChild(img);
+    }
+    return wrap;
+  }
+
+  function guestNavigationTarget(guest) {
+    const mappedBooth = guestBoothNumbers(guest).find(booth => window.NYCC_BOOTHS?.[booth]);
+    if (mappedBooth) return { booth: mappedBooth };
+    if (guest.locationId) return { locationId: guest.locationId };
+    return null;
   }
 
   function renderGuests() {
     const query = el('guestSearch').value.trim().toLowerCase();
+    const filter = el('guestFilter').value;
     const all = allGuestRecords();
-    const filtered = all.filter(guest => [guest.name, guest.type, guest.knownFor, guest.fridayNote, ...(guest.eventTitles || [])].join(' ').toLowerCase().includes(query));
-    el('guestResultCount').textContent = `${filtered.length} Friday guest / panelist record${filtered.length === 1 ? '' : 's'} shown · photo ops can be saved with your personal go/queue time`;
+
+    const filtered = all.filter(guest => {
+      if (!guestMatchesFilter(guest, filter)) return false;
+      if (query && !guestSearchText(guest).includes(query)) return false;
+      return true;
+    }).sort((a, b) => Number(b.featured) - Number(a.featured) || a.name.localeCompare(b.name));
+
+    const fridayRelevant = all.filter(guest => guest.fridayRelevant).length;
+    const activeFriday = all.filter(guest => guest.fridayRelevant && !guest.canceled).length;
+    const shown = Math.min(filtered.length, guestRenderLimit);
+
+    el('guestResultCount').textContent =
+      `${shown} of ${filtered.length} matching guests shown · ${all.length} official guests indexed · ${activeFriday} active Friday-relevant (${fridayRelevant} including canceled)`;
+
     const list = el('guestList');
     list.innerHTML = '';
-    filtered.forEach(guest => {
+
+    filtered.slice(0, guestRenderLimit).forEach(guest => {
       const card = document.createElement('article');
       card.className = 'browse-card guest-card';
-      const timedEvents = (guest.eventIds || []).map(id => events().find(event => event.id === id)).filter(Boolean).sort((a,b) => (a.start || '99:99').localeCompare(b.start || '99:99'));
-      const headerLabel = guest.highlighted ? 'FRIDAY GUEST' : (guest.hasPhotoOp ? 'FRIDAY PHOTO OP / PROGRAMMING' : 'FRIDAY PROGRAMMING');
-      card.innerHTML = `<div class="browse-card-top"><div><span class="eyebrow">${headerLabel}</span><h3>${escapeHTML(guest.name)}</h3></div><span class="category-pill">${escapeHTML(guest.type || 'Guest')}</span></div>${guest.knownFor ? `<p class="location-line">${escapeHTML(guest.knownFor)}</p>` : ''}${guest.fridayNote ? `<p>${escapeHTML(guest.fridayNote)}</p>` : ''}`;
+
+      card.appendChild(guestImageElement(guest));
+
+      const body = document.createElement('div');
+      body.className = 'guest-card-body';
+
+      const header = document.createElement('div');
+      header.className = 'browse-card-top';
+      const heading = guest.featured ? (guest.fridayRelevant ? 'FEATURED FRIDAY GUEST' : 'FEATURED GUEST') : (guest.fridayRelevant ? 'FRIDAY GUEST' : 'OFFICIAL GUEST');
+      header.innerHTML = `<div><span class="eyebrow">${heading}</span><h3>${escapeHTML(guest.name)}</h3></div><span class="category-pill">${escapeHTML(guest.type || 'Guest')}</span>`;
+      body.appendChild(header);
+
+      const badges = document.createElement('div');
+      badges.className = 'badge-row guest-badges';
+      if (guest.canceled) badges.innerHTML += '<span class="badge canceled">Canceled</span>';
+      if (guest.guestOfHonor) badges.innerHTML += '<span class="badge important">Guest of Honor</span>';
+      if (guest.days?.length) badges.innerHTML += `<span class="badge">${escapeHTML(guest.days.join(' · '))}</span>`;
+      (guest.categories || []).filter(c => c !== 'Canceled').slice(0, 3).forEach(category => {
+        badges.innerHTML += `<span class="badge">${escapeHTML(category)}</span>`;
+      });
+      if (badges.childNodes.length || badges.innerHTML) body.appendChild(badges);
+
+      if (guest.knownFor) {
+        const known = document.createElement('p');
+        known.className = 'location-line guest-known-for';
+        known.textContent = guest.knownFor;
+        body.appendChild(known);
+      }
+
+      if (guest.booth) {
+        const booth = document.createElement('p');
+        booth.className = 'guest-meta-line';
+        booth.innerHTML = `<strong>Location:</strong> ${escapeHTML(guest.booth)}`;
+        body.appendChild(booth);
+      }
+
+      const priceLine = guestPriceLine(guest);
+      if (priceLine) {
+        const price = document.createElement('p');
+        price.className = 'guest-meta-line';
+        price.innerHTML = `<strong>Listed prices:</strong> ${escapeHTML(priceLine)}`;
+        body.appendChild(price);
+      }
+
+      const timedEvents = (guest.eventIds || [])
+        .map(id => events().find(event => event.id === id))
+        .filter(Boolean)
+        .sort((a, b) => (a.start || '99:99').localeCompare(b.start || '99:99'));
 
       if (timedEvents.length) {
+        const details = document.createElement('details');
+        details.className = 'guest-schedule-details';
+        if (query || timedEvents.length <= 2) details.open = true;
+        const summary = document.createElement('summary');
+        summary.textContent = `Friday schedule (${timedEvents.length})`;
+        details.appendChild(summary);
         const timed = createTimedItemRows(timedEvents.map(event => event.id));
-        if (timed) card.appendChild(timed);
-      } else {
+        if (timed) details.appendChild(timed);
+        body.appendChild(details);
+      } else if (guest.fridayRelevant && !guest.canceled) {
         const note = document.createElement('p');
-        note.className = 'data-note';
-        note.textContent = 'No exact Friday time is indexed for this guest yet. Untimed / at-table autographing is not added as a fixed schedule event.';
-        card.appendChild(note);
+        note.className = 'data-note guest-no-time';
+        note.textContent = 'Attending Friday, but no exact Friday time is listed in the captured schedule feeds.';
+        body.appendChild(note);
+      }
+
+      if (guest.bio) {
+        const bio = document.createElement('details');
+        bio.className = 'guest-bio';
+        const summary = document.createElement('summary');
+        summary.textContent = 'About this guest';
+        const p = document.createElement('p');
+        p.textContent = guest.bio;
+        bio.append(summary, p);
+        body.appendChild(bio);
       }
 
       const actions = document.createElement('div');
-      actions.className = 'card-actions';
-      if (guest.locationId) {
+      actions.className = 'card-actions guest-actions';
+
+      const target = guestNavigationTarget(guest);
+      if (target) {
         const nav = document.createElement('button');
         nav.className = 'secondary';
         nav.type = 'button';
-        nav.textContent = 'Navigate';
-        nav.addEventListener('click', () => navigateToItem(guest));
+        nav.textContent = target.booth ? `Navigate #${target.booth}` : 'Navigate';
+        nav.addEventListener('click', () => navigateToItem(target));
         actions.appendChild(nav);
       }
+
       if (guest.profileUrl) actions.appendChild(externalLink(guest.profileUrl, 'NYCC profile'));
-      if (guest.photoOpsUrl) actions.appendChild(externalLink(guest.photoOpsUrl, 'Photo ops'));
-      if (guest.sourceUrl && guest.sourceUrl !== guest.profileUrl && guest.sourceUrl !== guest.photoOpsUrl) actions.appendChild(externalLink(guest.sourceUrl, 'Source'));
-      card.appendChild(actions);
+      if (guest.epicPhotoUrl) actions.appendChild(externalLink(guest.epicPhotoUrl, 'Photo ops'));
+      body.appendChild(actions);
+
+      card.appendChild(body);
       list.appendChild(card);
     });
+
+    const more = el('guestLoadMoreBtn');
+    more.hidden = shown >= filtered.length;
+    more.textContent = `Show more (${filtered.length - shown} remaining)`;
   }
 
   function openExhibitorDialog() {
@@ -1316,7 +1494,7 @@
 
   function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=16').catch(() => { el('offlineBadge').textContent = 'Friday-first · Online only'; });
+      navigator.serviceWorker.register('./sw.js?v=17').catch(() => { el('offlineBadge').textContent = 'Friday-first · Online only'; });
     } else el('offlineBadge').textContent = 'Friday-first · Online only';
   }
 
@@ -1336,7 +1514,9 @@
     el('importInput').addEventListener('change', event => importPlan(event.target.files[0]));
     el('eventSearch').addEventListener('input', renderBrowse);
     el('eventCategory').addEventListener('change', renderBrowse);
-    el('guestSearch').addEventListener('input', renderGuests);
+    el('guestSearch').addEventListener('input', () => { guestRenderLimit = 60; renderGuests(); });
+    el('guestFilter').addEventListener('change', () => { guestRenderLimit = 60; renderGuests(); });
+    el('guestLoadMoreBtn').addEventListener('click', () => { guestRenderLimit += 60; renderGuests(); });
     el('exhibitorSearch').addEventListener('input', () => { exhibitorRenderLimit = 80; renderExhibitors(); });
     el('exhibitorFilter').addEventListener('change', () => { exhibitorRenderLimit = 80; renderExhibitors(); });
     el('exhibitorTag').addEventListener('change', () => { exhibitorRenderLimit = 80; renderExhibitors(); });

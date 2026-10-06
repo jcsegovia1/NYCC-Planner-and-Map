@@ -1,7 +1,6 @@
 // NYCC 2026 Friday schedule.
-// 337 records are imported from the official NYCC schedule JSON feed supplied from the live site.
-// One additional official timed activity (DC & Marvel Portfolio Drop-Off) is retained from NYCC's
-// professional-programming page because it is not present in that schedule feed.
+// Core records come from the official Friday schedule feed; one later official guest-feed TeamUp
+// is retained when the newer guest feed contains a Friday schedule ID absent from the earlier schedule capture.
 
 window.NYCC_EVENTS = [
   {
@@ -1121,6 +1120,31 @@ window.NYCC_EVENTS = [
     "officialWindow": true,
     "durationMinutes": 10,
     "teamUp": true
+  },
+  {
+    "id": "nycc-953436",
+    "scheduleId": "953436",
+    "title": "TeamUp - Daredevil Duo Photo Op",
+    "date": "2026-10-09",
+    "start": "11:00",
+    "end": "11:10",
+    "category": "Photo Op",
+    "tags": [
+      "Autographing and Photo Ops"
+    ],
+    "guests": [
+      "Charlie Cox",
+      "Krysten Ritter"
+    ],
+    "sourceUrl": "https://www.newyorkcomiccon.com/en-us/guests/all-guests.html",
+    "sourceLabel": "Official NYCC guest feed",
+    "locationId": "l1_photo_ops",
+    "location": "Photo Ops",
+    "photoOp": true,
+    "teamUp": true,
+    "ticketed": true,
+    "officialWindow": true,
+    "durationMinutes": 10
   },
   {
     "id": "nycc-950529",

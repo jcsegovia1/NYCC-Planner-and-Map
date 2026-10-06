@@ -1,4 +1,4 @@
-const CACHE = 'nycc2026-friday-v16';
+const CACHE = 'nycc2026-friday-v17';
 const CORE = [
   './', './index.html', './styles.css', './app.js', './manifest.webmanifest',
   './data/locations.js', './data/booths.js', './data/events.js', './data/activities.js', './data/guests.js', './data/exhibitors.js',
@@ -35,10 +35,32 @@ async function cacheFirst(request) {
   return response;
 }
 
+async function remoteImageCacheFirst(request) {
+  const cache = await caches.open(CACHE);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+  try {
+    const response = await fetch(request);
+    if (response && (response.ok || response.type === 'opaque')) {
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (_) {
+    return cached;
+  }
+}
+
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
-  if (url.origin !== self.location.origin) return;
+
+  if (url.origin !== self.location.origin) {
+    if (event.request.destination === 'image' && url.hostname === 'conv-prod-app.s3.amazonaws.com') {
+      event.respondWith(remoteImageCacheFirst(event.request));
+    }
+    return;
+  }
+
   const isMapOrImage = /\.(?:webp|png|jpg|jpeg|svg|ico)$/i.test(url.pathname);
   event.respondWith(isMapOrImage ? cacheFirst(event.request) : networkFirst(event.request));
 });

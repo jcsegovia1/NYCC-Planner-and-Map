@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/icon-192.png">
   <link rel="apple-touch-icon" href="assets/icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=16">
+  <link rel="stylesheet" href="styles.css?v=17">
 </head>
 <body>
   <header class="topbar">
@@ -101,17 +101,32 @@
       <div class="section-head">
         <div>
           <h2 id="guestsHeading">Friday guests</h2>
-          <p>Friday guests, panelists and professional photo ops. Photo-op cards show the public session/group time; when you save one, set the go/queue time from your own ticket.</p>
+          <p>Official NYCC guests with photos and Friday-first scheduling. Save their timed Friday panels, signings and photo ops directly from the guest card.</p>
         </div>
-        <a class="secondary link-button" href="https://www.newyorkcomiccon.com/en-us/guests.html" target="_blank" rel="noopener">Official guest directory ↗</a>
+        <a class="secondary link-button" href="https://www.newyorkcomiccon.com/en-us/guests/all-guests.html" target="_blank" rel="noopener">Official guest directory ↗</a>
       </div>
-      <div class="filter-bar single-search">
+      <div class="filter-bar guest-filters">
         <label class="search-field">Find a guest
-          <input id="guestSearch" type="search" placeholder="Matt Smith, John Cusack, Sarah Paulson…">
+          <input id="guestSearch" type="search" placeholder="Matthew Lillard, Hayden Christensen, Invincible, Star Wars…">
+        </label>
+        <label>Show
+          <select id="guestFilter">
+            <option value="friday">Active Friday guests</option>
+            <option value="featured">Featured Friday guests</option>
+            <option value="photoops">Friday autographs / photo ops</option>
+            <option value="artist">Friday Artist Alley</option>
+            <option value="literary">Friday Writers Block / literary</option>
+            <option value="movies">Friday Movies / TV</option>
+            <option value="comics">Friday comics guests</option>
+            <option value="all">All active official guests</option>
+            <option value="canceled">Canceled guests</option>
+          </select>
         </label>
       </div>
+      <p class="data-note">Guest cards now use the official NYCC all-guests feed, including official guest photos, bios, known-for information, attendance days, booth/location details, prices when listed, and Friday schedule links. Photos load directly from NYCC's image host.</p>
       <p id="guestResultCount" class="result-count"></p>
-      <div id="guestList" class="browse-grid"></div>
+      <div id="guestList" class="guest-grid"></div>
+      <div class="load-more-wrap"><button id="guestLoadMoreBtn" class="secondary" type="button" hidden>Show more</button></div>
     </section>
 
     <section id="tab-exhibitors" class="panel" aria-labelledby="exhibitorsHeading">
@@ -371,12 +386,12 @@
     </form>
   </dialog>
 
-  <script src="data/locations.js?v=16"></script>
-  <script src="data/booths.js?v=16"></script>
-  <script src="data/events.js?v=16"></script>
-  <script src="data/activities.js?v=16"></script>
-  <script src="data/guests.js?v=16"></script>
-  <script src="data/exhibitors.js?v=16"></script>
-  <script src="app.js?v=16"></script>
+  <script src="data/locations.js?v=17"></script>
+  <script src="data/booths.js?v=17"></script>
+  <script src="data/events.js?v=17"></script>
+  <script src="data/activities.js?v=17"></script>
+  <script src="data/guests.js?v=17"></script>
+  <script src="data/exhibitors.js?v=17"></script>
+  <script src="app.js?v=17"></script>
 </body>
 </html>
