@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/icon-192.png">
   <link rel="apple-touch-icon" href="assets/icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=11">
+  <link rel="stylesheet" href="styles.css?v=12">
 </head>
 <body>
   <header class="topbar">
@@ -120,14 +120,17 @@
           <h2 id="exhibitorsHeading">Exhibitors & artists</h2>
           <p>Search indexed exhibitors and artists, map their booths, and save untimed stops to your Friday To-Do list.</p>
         </div>
-        <a class="secondary link-button" href="https://www.newyorkcomiccon.com/en-us/exhibitors-and-artists/exhibitors.html" target="_blank" rel="noopener">Full official directory ↗</a>
+        <div class="section-actions">
+          <button id="addMissingExhibitorBtn" class="primary" type="button">+ Add missing exhibitor</button>
+          <a class="secondary link-button" href="https://www.newyorkcomiccon.com/en-us/exhibitors-and-artists/exhibitors.html" target="_blank" rel="noopener">Full official directory ↗</a>
+        </div>
       </div>
       <div class="filter-bar single-search">
         <label class="search-field">Search exhibitors / artists
           <input id="exhibitorSearch" type="search" placeholder="Marvel, DC, WEBTOON, 4457…">
         </label>
       </div>
-      <p class="data-note">The official exhibitor directory is dynamically loaded. This build expands the verified booth index substantially and keeps the official directory one tap away; entries are never given made-up booth numbers.</p>
+      <p class="data-note">NYCC's official web directory loads its exhibitor cards dynamically, so a static copy cannot reliably expose every entry. This build now includes a much larger 2026 booth index assembled from official/vendor announcements plus clearly marked community-reported 2026 booth data. If something is still missing, tap <strong>Add missing exhibitor</strong> and it will immediately join your Friday To-Do list.</p>
       <p id="exhibitorResultCount" class="result-count"></p>
       <div id="exhibitorList" class="browse-grid"></div>
     </section>
@@ -283,6 +286,40 @@
     </form>
   </dialog>
 
+  <dialog id="exhibitorDialog">
+    <form id="exhibitorForm" method="dialog">
+      <div class="dialog-head">
+        <div>
+          <span class="eyebrow">FRIDAY · BOOTH TO-DO</span>
+          <h2>Add missing exhibitor</h2>
+        </div>
+        <button id="closeExhibitorDialogBtn" type="button" class="icon-button" aria-label="Close">×</button>
+      </div>
+
+      <p class="data-note">Use this for any exhibitor you find in the official NYCC directory that is not in the local index yet. It will be saved as an untimed Friday To-Do item.</p>
+
+      <label for="customExhibitorName">Exhibitor name</label>
+      <input id="customExhibitorName" required placeholder="Example: Some Awesome Comics">
+
+      <div class="form-grid friday-form-grid">
+        <label>Booth
+          <input id="customExhibitorBooth" maxlength="16" placeholder="Optional, e.g. 4457 or HB906">
+        </label>
+        <label>Category
+          <input id="customExhibitorCategory" placeholder="Comics, collectibles, anime…">
+        </label>
+      </div>
+
+      <label for="customExhibitorNote">Notes</label>
+      <textarea id="customExhibitorNote" rows="3" placeholder="Exclusive to buy, person to meet, item to look for…"></textarea>
+
+      <div class="dialog-actions">
+        <button id="cancelExhibitorBtn" type="button" class="secondary">Cancel</button>
+        <button type="submit" class="primary">Add to Friday To-Do</button>
+      </div>
+    </form>
+  </dialog>
+
   <dialog id="photoPlanDialog">
     <form id="photoPlanForm" method="dialog">
       <div class="dialog-head">
@@ -318,12 +355,12 @@
     </form>
   </dialog>
 
-  <script src="data/locations.js?v=11"></script>
-  <script src="data/booths.js?v=11"></script>
-  <script src="data/events.js?v=11"></script>
-  <script src="data/activities.js?v=11"></script>
-  <script src="data/guests.js?v=11"></script>
-  <script src="data/exhibitors.js?v=11"></script>
-  <script src="app.js?v=11"></script>
+  <script src="data/locations.js?v=12"></script>
+  <script src="data/booths.js?v=12"></script>
+  <script src="data/events.js?v=12"></script>
+  <script src="data/activities.js?v=12"></script>
+  <script src="data/guests.js?v=12"></script>
+  <script src="data/exhibitors.js?v=12"></script>
+  <script src="app.js?v=12"></script>
 </body>
 </html>

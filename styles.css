@@ -150,7 +150,7 @@ label { font-weight: 700; font-size: .92rem; display: grid; gap: 6px; }
 .warning-card { background: var(--warning); border-color: var(--warning-line); }
 dialog { width: min(620px, calc(100% - 24px)); border: 0; border-radius: 20px; padding: 0; box-shadow: 0 22px 70px rgba(0,0,0,.25); }
 dialog::backdrop { background: rgba(0,0,0,.45); }
-#eventForm { padding: 20px; display: grid; gap: 12px; }
+#eventForm, #exhibitorForm { padding: 20px; display: grid; gap: 12px; }
 .dialog-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
 .dialog-head h2 { margin: 2px 0 0; }
 .icon-button { min-width: 44px; background: var(--surface-2); border-color: var(--line); font-size: 1.4rem; }
@@ -470,4 +470,28 @@ dialog::backdrop { background: rgba(0,0,0,.45); }
 }
 @media (max-width: 520px) {
   .saved-event-description { font-size: .8rem; }
+}
+
+
+/* v12: exhibitor directory expansion + custom booth entries */
+.section-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.source-status {
+  display: inline-flex;
+  width: fit-content;
+  margin: -2px 0 8px;
+  padding: 3px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: .66rem;
+  font-weight: 800;
+  letter-spacing: .055em;
+}
+@media (max-width: 760px) {
+  .section-actions { justify-content: flex-start; }
 }

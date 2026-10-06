@@ -14,12 +14,14 @@
   const STORAGE_EVENT_OVERRIDES = 'nycc2026-friday-event-overrides-v1';
   const STORAGE_EXHIBITOR_TODOS = 'nycc2026-friday-exhibitor-todos-v1';
   const STORAGE_EXHIBITOR_DONE = 'nycc2026-friday-exhibitor-done-v1';
+  const STORAGE_CUSTOM_EXHIBITORS = 'nycc2026-friday-custom-exhibitors-v1';
 
   let personalEvents = loadArray(STORAGE_EVENTS).filter(e => !e.date || e.date === FRIDAY).map(e => ({ ...e, date: FRIDAY }));
   let savedOfficialIds = loadArray(STORAGE_SAVED).filter(id => typeof id === 'string');
   let eventOverrides = loadObject(STORAGE_EVENT_OVERRIDES);
   let exhibitorTodoIds = loadArray(STORAGE_EXHIBITOR_TODOS).filter(id => typeof id === 'string');
   let exhibitorDone = loadObject(STORAGE_EXHIBITOR_DONE);
+  let customExhibitors = loadArray(STORAGE_CUSTOM_EXHIBITORS).filter(item => item && item.name).map(item => ({ ...item, custom: true }));
   let currentLocationId = localStorage.getItem(STORAGE_START) || 'l1_hall_center';
   let destinationId = 'l1_main_stage';
   let activeRoute = null;
@@ -32,7 +34,7 @@
   const events = () => Array.isArray(window.NYCC_EVENTS) ? window.NYCC_EVENTS.filter(e => e.date === FRIDAY) : [];
   const activities = () => Array.isArray(window.NYCC_ACTIVITIES) ? window.NYCC_ACTIVITIES : [];
   const guestHighlights = () => Array.isArray(window.NYCC_GUEST_HIGHLIGHTS) ? window.NYCC_GUEST_HIGHLIGHTS : [];
-  const exhibitors = () => Array.isArray(window.NYCC_EXHIBITORS) ? window.NYCC_EXHIBITORS : [];
+  const exhibitors = () => [...(Array.isArray(window.NYCC_EXHIBITORS) ? window.NYCC_EXHIBITORS : []), ...customExhibitors];
 
   function exhibitorId(item) {
     return String(item.id || item.booth || item.artistTable || item.name || '')
@@ -97,6 +99,7 @@
     localStorage.setItem(STORAGE_EVENT_OVERRIDES, JSON.stringify(eventOverrides));
     localStorage.setItem(STORAGE_EXHIBITOR_TODOS, JSON.stringify(exhibitorTodoIds));
     localStorage.setItem(STORAGE_EXHIBITOR_DONE, JSON.stringify(exhibitorDone));
+    localStorage.setItem(STORAGE_CUSTOM_EXHIBITORS, JSON.stringify(customExhibitors));
   }
 
   function escapeHTML(value) {
@@ -579,9 +582,58 @@
     });
   }
 
+  function openExhibitorDialog() {
+    el('exhibitorForm').reset();
+    el('customExhibitorCategory').value = 'Exhibitor';
+    el('exhibitorDialog').showModal();
+    setTimeout(() => el('customExhibitorName').focus(), 0);
+  }
+
+  function closeExhibitorDialog() {
+    if (el('exhibitorDialog').open) el('exhibitorDialog').close();
+  }
+
+  function saveCustomExhibitorFromForm() {
+    const name = el('customExhibitorName').value.trim();
+    if (!name) return;
+    const booth = el('customExhibitorBooth').value.trim().toUpperCase();
+    const category = el('customExhibitorCategory').value.trim() || 'Exhibitor';
+    const note = el('customExhibitorNote').value.trim();
+    const item = {
+      id: `custom-exhibitor-${Date.now()}`,
+      name,
+      booth,
+      category,
+      note: note || 'Added manually from the official NYCC directory.',
+      sourceUrl: 'https://www.newyorkcomiccon.com/en-us/exhibitors-and-artists/exhibitors.html',
+      custom: true
+    };
+    customExhibitors.push(item);
+    const id = exhibitorId(item);
+    if (!exhibitorTodoIds.includes(id)) exhibitorTodoIds.push(id);
+    exhibitorDone[id] = false;
+    savePlan();
+    renderExhibitors();
+    renderMyFriday();
+    closeExhibitorDialog();
+    toast('Added exhibitor to Friday to-do');
+  }
+
+  function deleteCustomExhibitor(item) {
+    if (!item?.custom) return;
+    const id = exhibitorId(item);
+    customExhibitors = customExhibitors.filter(entry => exhibitorId(entry) !== id);
+    exhibitorTodoIds = exhibitorTodoIds.filter(value => value !== id);
+    delete exhibitorDone[id];
+    savePlan();
+    renderExhibitors();
+    renderMyFriday();
+    toast('Custom exhibitor removed');
+  }
+
   function renderExhibitors() {
     const query = el('exhibitorSearch').value.trim().toLowerCase();
-    const filtered = exhibitors().filter(item => [item.name, item.booth, item.artistTable, item.category, item.note].join(' ').toLowerCase().includes(query));
+    const filtered = exhibitors().filter(item => [item.name, item.booth, item.artistTable, item.category, item.note, ...(item.aliases || [])].join(' ').toLowerCase().includes(query));
     const list = el('exhibitorList');
     el('exhibitorResultCount').textContent = `${filtered.length} exhibitor / artist entr${filtered.length === 1 ? 'y' : 'ies'} shown · ${exhibitors().length} indexed`;
     list.innerHTML = '';
@@ -591,7 +643,8 @@
       const spot = item.booth ? `Booth ${item.booth}` : item.artistTable ? `Artist Alley ${item.artistTable}` : eventLocationLabel(item);
       const saved = isExhibitorTodo(item);
       const done = Boolean(exhibitorDone[exhibitorId(item)]);
-      card.innerHTML = `<div class="browse-card-top"><div><span class="eyebrow">${escapeHTML(item.category || 'EXHIBITOR')}</span><h3>${escapeHTML(item.name)}</h3></div>${item.booth ? `<span class="booth-pill">#${escapeHTML(item.booth)}</span>` : ''}</div><p class="location-line">${escapeHTML(spot)}</p><p>${escapeHTML(item.note || '')}</p>${saved ? `<div class="todo-status ${done ? 'done' : ''}">${done ? '✓ Visited / done' : '★ On Friday to-do'}</div>` : ''}<div class="card-actions"></div>`;
+      const sourceBadge = item.custom ? 'MY ENTRY' : item.sourceKind === 'community' ? 'COMMUNITY-REPORTED' : '2026 INDEXED';
+      card.innerHTML = `<div class="browse-card-top"><div><span class="eyebrow">${escapeHTML(item.category || 'EXHIBITOR')}</span><h3>${escapeHTML(item.name)}</h3></div>${item.booth ? `<span class="booth-pill">#${escapeHTML(item.booth)}</span>` : ''}</div><div class="source-status">${sourceBadge}</div><p class="location-line">${escapeHTML(spot)}</p><p>${escapeHTML(item.note || '')}</p>${saved ? `<div class="todo-status ${done ? 'done' : ''}">${done ? '✓ Visited / done' : '★ On Friday to-do'}</div>` : ''}<div class="card-actions"></div>`;
       const actions = card.querySelector('.card-actions');
 
       const todo = document.createElement('button');
@@ -623,6 +676,14 @@
         actions.appendChild(nav);
       }
       if (item.sourceUrl) actions.appendChild(externalLink(item.sourceUrl, 'Info'));
+      if (item.custom) {
+        const removeCustom = document.createElement('button');
+        removeCustom.className = 'secondary danger-outline';
+        removeCustom.type = 'button';
+        removeCustom.textContent = 'Delete my entry';
+        removeCustom.addEventListener('click', () => deleteCustomExhibitor(item));
+        actions.appendChild(removeCustom);
+      }
       list.appendChild(card);
     });
   }
@@ -981,7 +1042,7 @@
   }
 
   function exportPlan() {
-    const data = JSON.stringify({ version: 4, date: FRIDAY, savedOfficialIds, eventOverrides, personalEvents, exhibitorTodoIds, exhibitorDone }, null, 2);
+    const data = JSON.stringify({ version: 5, date: FRIDAY, savedOfficialIds, eventOverrides, personalEvents, exhibitorTodoIds, exhibitorDone, customExhibitors }, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1007,6 +1068,7 @@
           eventOverrides = parsed.eventOverrides && typeof parsed.eventOverrides === 'object' && !Array.isArray(parsed.eventOverrides) ? parsed.eventOverrides : {};
           exhibitorTodoIds = Array.isArray(parsed.exhibitorTodoIds) ? parsed.exhibitorTodoIds.filter(id => typeof id === 'string') : [];
           exhibitorDone = parsed.exhibitorDone && typeof parsed.exhibitorDone === 'object' && !Array.isArray(parsed.exhibitorDone) ? parsed.exhibitorDone : {};
+          customExhibitors = Array.isArray(parsed.customExhibitors) ? parsed.customExhibitors.filter(item => item && item.name).map(item => ({ ...item, custom: true })) : [];
         } else throw new Error('Invalid plan');
         savePlan();
         renderMyFriday();
@@ -1090,7 +1152,7 @@
 
   function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=10').catch(() => { el('offlineBadge').textContent = 'Friday-first · Online only'; });
+      navigator.serviceWorker.register('./sw.js?v=12').catch(() => { el('offlineBadge').textContent = 'Friday-first · Online only'; });
     } else el('offlineBadge').textContent = 'Friday-first · Online only';
   }
 
@@ -1112,6 +1174,10 @@
     el('eventCategory').addEventListener('change', renderBrowse);
     el('guestSearch').addEventListener('input', renderGuests);
     el('exhibitorSearch').addEventListener('input', renderExhibitors);
+    el('addMissingExhibitorBtn').addEventListener('click', openExhibitorDialog);
+    el('closeExhibitorDialogBtn').addEventListener('click', closeExhibitorDialog);
+    el('cancelExhibitorBtn').addEventListener('click', closeExhibitorDialog);
+    el('exhibitorForm').addEventListener('submit', event => { event.preventDefault(); saveCustomExhibitorFromForm(); });
 
     el('currentLocationSelect').addEventListener('change', () => {
       currentLocationId = el('currentLocationSelect').value;
