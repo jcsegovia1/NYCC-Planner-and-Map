@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/icon-192.png">
   <link rel="apple-touch-icon" href="assets/icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=14">
+  <link rel="stylesheet" href="styles.css?v=16">
 </head>
 <body>
   <header class="topbar">
@@ -121,18 +121,34 @@
           <p>Search indexed exhibitors and artists, map their booths, and save untimed stops to your Friday To-Do list.</p>
         </div>
         <div class="section-actions">
-          <button id="addMissingExhibitorBtn" class="primary" type="button">+ Add missing exhibitor</button>
+          <button id="addMissingExhibitorBtn" class="primary" type="button">+ Add personal booth stop</button>
           <a class="secondary link-button" href="https://www.newyorkcomiccon.com/en-us/exhibitors-and-artists/exhibitors.html" target="_blank" rel="noopener">Full official directory ↗</a>
         </div>
       </div>
-      <div class="filter-bar single-search">
-        <label class="search-field">Search exhibitors / artists
-          <input id="exhibitorSearch" type="search" placeholder="Marvel, DC, WEBTOON, 4457…">
+      <div class="filter-bar exhibitor-filters">
+        <label class="search-field">Search exhibitors
+          <input id="exhibitorSearch" type="search" placeholder="Marvel, AnimeStuffStore, comics, 3073, ONE PIECE…">
+        </label>
+        <label>Show
+          <select id="exhibitorFilter">
+            <option value="">All exhibitors</option>
+            <option value="featured">Featured</option>
+            <option value="exclusives">Has exclusives</option>
+            <option value="specials">Has show specials</option>
+            <option value="mapped">Mapped location</option>
+            <option value="saved">My Friday To-Do</option>
+          </select>
+        </label>
+        <label>Type / tag
+          <select id="exhibitorTag">
+            <option value="">All types</option>
+          </select>
         </label>
       </div>
-      <p class="data-note">NYCC's official web directory loads its exhibitor cards dynamically, so a static copy cannot reliably expose every entry. This build now includes a much larger 2026 booth index assembled from official/vendor announcements plus clearly marked community-reported 2026 booth data. If something is still missing, tap <strong>Add missing exhibitor</strong> and it will immediately join your Friday To-Do list.</p>
+      <p class="data-note">This build uses the official NYCC 2026 exhibitor data feed captured from the live directory: <strong>592 official exhibitors</strong>, including booth/location values, descriptions, tags, websites, featured status, exclusives, and show-special listings where NYCC provides them. Save any booth as an untimed Friday To-Do.</p>
       <p id="exhibitorResultCount" class="result-count"></p>
       <div id="exhibitorList" class="browse-grid"></div>
+      <div class="load-more-wrap"><button id="exhibitorLoadMoreBtn" class="secondary" type="button" hidden>Show more</button></div>
     </section>
 
     <section id="tab-navigate" class="panel" aria-labelledby="navigateHeading">
@@ -291,12 +307,12 @@
       <div class="dialog-head">
         <div>
           <span class="eyebrow">FRIDAY · BOOTH TO-DO</span>
-          <h2>Add missing exhibitor</h2>
+          <h2>Add personal booth stop</h2>
         </div>
         <button id="closeExhibitorDialogBtn" type="button" class="icon-button" aria-label="Close">×</button>
       </div>
 
-      <p class="data-note">Use this for any exhibitor you find in the official NYCC directory that is not in the local index yet. It will be saved as an untimed Friday To-Do item.</p>
+      <p class="data-note">The official exhibitor feed is already imported. Use this only for a personal/custom booth stop you want to add yourself; it will be saved as an untimed Friday To-Do item.</p>
 
       <label for="customExhibitorName">Exhibitor name</label>
       <input id="customExhibitorName" required placeholder="Example: Some Awesome Comics">
@@ -355,12 +371,12 @@
     </form>
   </dialog>
 
-  <script src="data/locations.js?v=14"></script>
-  <script src="data/booths.js?v=14"></script>
-  <script src="data/events.js?v=14"></script>
-  <script src="data/activities.js?v=14"></script>
-  <script src="data/guests.js?v=14"></script>
-  <script src="data/exhibitors.js?v=14"></script>
-  <script src="app.js?v=14"></script>
+  <script src="data/locations.js?v=16"></script>
+  <script src="data/booths.js?v=16"></script>
+  <script src="data/events.js?v=16"></script>
+  <script src="data/activities.js?v=16"></script>
+  <script src="data/guests.js?v=16"></script>
+  <script src="data/exhibitors.js?v=16"></script>
+  <script src="app.js?v=16"></script>
 </body>
 </html>

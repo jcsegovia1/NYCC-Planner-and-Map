@@ -26,35 +26,64 @@
   let destinationId = 'l1_main_stage';
   let activeRoute = null;
   let activeBooth = null;
+  let activeBooths = [];
   let activeMap = 'overview';
   let gpsWatchId = null;
   let latestPosition = null;
+  let exhibitorRenderLimit = 80;
 
   const el = id => document.getElementById(id);
   const events = () => Array.isArray(window.NYCC_EVENTS) ? window.NYCC_EVENTS.filter(e => e.date === FRIDAY) : [];
   const activities = () => Array.isArray(window.NYCC_ACTIVITIES) ? window.NYCC_ACTIVITIES : [];
   const guestHighlights = () => Array.isArray(window.NYCC_GUEST_HIGHLIGHTS) ? window.NYCC_GUEST_HIGHLIGHTS : [];
-  const exhibitors = () => [...(Array.isArray(window.NYCC_EXHIBITORS) ? window.NYCC_EXHIBITORS : []), ...customExhibitors];
+  const exhibitors = () => [...(Array.isArray(window.NYCC_EXHIBITORS) ? window.NYCC_EXHIBITORS : []), ...(Array.isArray(window.NYCC_EXHIBITOR_EXTRAS) ? window.NYCC_EXHIBITOR_EXTRAS : []), ...customExhibitors];
 
   function exhibitorId(item) {
     return String(item.id || item.booth || item.artistTable || item.name || '')
       .trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   }
 
+  function exhibitorIds(item) {
+    return [...new Set([exhibitorId(item), ...(item.legacyIds || [])].filter(Boolean))];
+  }
+
+  function exhibitorBoothNumbers(item) {
+    return [...new Set((String(item.booth || '').match(/\b\d{4}\b/g) || []))];
+  }
+
+  function mappedExhibitorBooths(item) {
+    return exhibitorBoothNumbers(item).filter(booth => window.NYCC_BOOTHS?.[booth]);
+  }
+
+  function exhibitorSpotLabel(item) {
+    if (item.artistTable) return `Artist Alley ${item.artistTable}`;
+    if (item.booth) {
+      const nums = exhibitorBoothNumbers(item);
+      if (nums.length === 1 && String(item.booth).trim() === nums[0]) return `Booth ${nums[0]}`;
+      return `Locations: ${item.booth}`;
+    }
+    return eventLocationLabel(item);
+  }
+
   function isExhibitorTodo(item) {
-    return exhibitorTodoIds.includes(exhibitorId(item));
+    return exhibitorIds(item).some(id => exhibitorTodoIds.includes(id));
+  }
+
+  function savedExhibitorTodoId(item) {
+    return exhibitorIds(item).find(id => exhibitorTodoIds.includes(id)) || exhibitorId(item);
   }
 
   function toggleExhibitorTodo(item) {
-    const id = exhibitorId(item);
-    if (!id) return;
-    if (exhibitorTodoIds.includes(id)) {
-      exhibitorTodoIds = exhibitorTodoIds.filter(value => value !== id);
-      delete exhibitorDone[id];
+    const ids = exhibitorIds(item);
+    const primary = exhibitorId(item);
+    if (!primary) return;
+    if (ids.some(id => exhibitorTodoIds.includes(id))) {
+      exhibitorTodoIds = exhibitorTodoIds.filter(value => !ids.includes(value));
+      ids.forEach(id => { delete exhibitorDone[id]; });
       toast('Removed from Friday to-do');
     } else {
-      exhibitorTodoIds.push(id);
-      exhibitorDone[id] = false;
+      exhibitorTodoIds.push(primary);
+      exhibitorDone[primary] = false;
       toast('Added to Friday to-do');
     }
     savePlan();
@@ -63,7 +92,7 @@
   }
 
   function setExhibitorDone(item, done) {
-    const id = exhibitorId(item);
+    const id = savedExhibitorTodoId(item);
     exhibitorDone[id] = Boolean(done);
     savePlan();
     renderMyFriday();
@@ -71,8 +100,16 @@
   }
 
   function myExhibitorTodos() {
-    const byId = new Map(exhibitors().map(item => [exhibitorId(item), item]));
-    return exhibitorTodoIds.map(id => byId.get(id)).filter(Boolean);
+    const byId = new Map();
+    exhibitors().forEach(item => exhibitorIds(item).forEach(id => byId.set(id, item)));
+    const seen = new Set();
+    return exhibitorTodoIds.map(id => byId.get(id)).filter(item => {
+      if (!item) return false;
+      const primary = exhibitorId(item);
+      if (seen.has(primary)) return false;
+      seen.add(primary);
+      return true;
+    });
   }
 
   function loadArray(key) {
@@ -354,7 +391,7 @@
     }
 
     todos.forEach(item => {
-      const id = exhibitorId(item);
+      const id = savedExhibitorTodoId(item);
       const done = Boolean(exhibitorDone[id]);
       const card = document.createElement('article');
       card.className = `todo-card${done ? ' done' : ''}`;
@@ -366,24 +403,27 @@
 
       const body = document.createElement('div');
       body.className = 'todo-body';
-      const spot = item.booth ? `Booth ${item.booth} · Level 3 Show Floor` : item.artistTable ? `Artist Alley ${item.artistTable}` : eventLocationLabel(item);
+      const spot = exhibitorSpotLabel(item);
       body.innerHTML = `<div class="event-title">${escapeHTML(item.name)}</div><div class="event-meta">${escapeHTML(spot)}</div>${item.category ? `<div class="event-notes">${escapeHTML(item.category)}</div>` : ''}`;
 
       const actions = document.createElement('div');
       actions.className = 'event-actions';
-      if (item.booth && window.NYCC_BOOTHS?.[item.booth]) {
-        const show = document.createElement('button');
-        show.className = 'secondary';
-        show.type = 'button';
-        show.textContent = 'Map';
-        show.addEventListener('click', () => showBoothOnMap(item.booth));
-        actions.appendChild(show);
-        const nav = document.createElement('button');
-        nav.className = 'primary';
-        nav.type = 'button';
-        nav.textContent = 'Navigate';
-        nav.addEventListener('click', () => navigateToItem({ booth: item.booth }));
-        actions.appendChild(nav);
+      const mappedBooths = mappedExhibitorBooths(item);
+      if (mappedBooths.length) {
+        mappedBooths.slice(0, 3).forEach((booth, index) => {
+          const nav = document.createElement('button');
+          nav.className = index === 0 ? 'primary' : 'secondary';
+          nav.type = 'button';
+          nav.textContent = mappedBooths.length === 1 ? 'Navigate' : `Navigate #${booth}`;
+          nav.addEventListener('click', () => navigateToItem({ booth }));
+          actions.appendChild(nav);
+        });
+        const mapBtn = document.createElement('button');
+        mapBtn.className = 'secondary';
+        mapBtn.type = 'button';
+        mapBtn.textContent = mappedBooths.length === 1 ? 'Map' : `Map ${mappedBooths.length} booths`;
+        mapBtn.addEventListener('click', () => showExhibitorBoothsOnMap(mappedBooths));
+        actions.appendChild(mapBtn);
       } else if (item.locationId) {
         const nav = document.createElement('button');
         nav.className = 'primary';
@@ -413,6 +453,18 @@
       option.textContent = category;
       select.appendChild(option);
     });
+  }
+
+  function populateExhibitorTags() {
+    const select = el('exhibitorTag');
+    [...new Set(exhibitors().flatMap(item => item.tags || []).filter(Boolean))]
+      .sort((a, b) => a.localeCompare(b))
+      .forEach(tag => {
+        const option = document.createElement('option');
+        option.value = tag;
+        option.textContent = tag;
+        select.appendChild(option);
+      });
   }
 
   function renderBrowse() {
@@ -644,20 +696,96 @@
     toast('Custom exhibitor removed');
   }
 
+  function exhibitorBadges(item) {
+    const badges = [];
+    if (item.featured) badges.push('<span class="badge important">Featured</span>');
+    if (item.exclusives) badges.push('<span class="badge">Exclusives</span>');
+    if (item.showSpecials) badges.push('<span class="badge">Show specials</span>');
+    (item.tags || []).slice(0, 3).forEach(tag => badges.push(`<span class="badge">${escapeHTML(tag)}</span>`));
+    return badges.join('');
+  }
+
+  function exhibitorSearchText(item) {
+    const specials = (item.specials || []).flatMap(s => [s.title, s.description, s.price]);
+    return [
+      item.name, item.booth, item.artistTable, item.category, item.description, item.note,
+      item.website, item.storeUrl, ...(item.tags || []), ...(item.categories || []),
+      ...(item.aliases || []), ...specials
+    ].filter(Boolean).join(' ').toLowerCase();
+  }
+
+  function renderExhibitorSpecials(item, host) {
+    if (!item.specials?.length) return;
+    const details = document.createElement('details');
+    details.className = 'exhibitor-specials';
+    const summary = document.createElement('summary');
+    summary.textContent = `Exclusives / specials (${item.specials.length})`;
+    details.appendChild(summary);
+
+    const list = document.createElement('div');
+    list.className = 'special-list';
+    item.specials.forEach(special => {
+      const row = document.createElement('div');
+      row.className = 'special-item';
+      const price = special.price ? `<span class="special-price">$${escapeHTML(special.price)}</span>` : '';
+      row.innerHTML = `<div class="special-title">${escapeHTML(special.title || 'Show special')}${price}</div>${special.description ? `<div class="special-description">${escapeHTML(compactDescription(special.description, 360))}</div>` : ''}`;
+      if (special.link) row.appendChild(externalLink(special.link, 'Item'));
+      list.appendChild(row);
+    });
+    details.appendChild(list);
+    host.appendChild(details);
+  }
+
   function renderExhibitors() {
     const query = el('exhibitorSearch').value.trim().toLowerCase();
-    const filtered = exhibitors().filter(item => [item.name, item.booth, item.artistTable, item.category, item.note, ...(item.aliases || [])].join(' ').toLowerCase().includes(query));
+    const filter = el('exhibitorFilter').value;
+    const tag = el('exhibitorTag').value;
+    const all = exhibitors();
+
+    const filtered = all.filter(item => {
+      if (query && !exhibitorSearchText(item).includes(query)) return false;
+      if (tag && !(item.tags || []).includes(tag)) return false;
+      if (filter === 'featured' && !item.featured) return false;
+      if (filter === 'exclusives' && !item.exclusives) return false;
+      if (filter === 'specials' && !(item.specials?.length)) return false;
+      if (filter === 'mapped' && !mappedExhibitorBooths(item).length && !item.locationId) return false;
+      if (filter === 'saved' && !isExhibitorTodo(item)) return false;
+      return true;
+    }).sort((a, b) => a.name.localeCompare(b.name));
+
+    const officialCount = Array.isArray(window.NYCC_EXHIBITORS) ? window.NYCC_EXHIBITORS.length : 0;
+    const extraCount = Array.isArray(window.NYCC_EXHIBITOR_EXTRAS) ? window.NYCC_EXHIBITOR_EXTRAS.length : 0;
+    const shown = Math.min(filtered.length, exhibitorRenderLimit);
+    el('exhibitorResultCount').textContent =
+      `${shown} of ${filtered.length} matching entries shown · ${officialCount} official exhibitors${extraCount ? ` + ${extraCount} supplemental artist/cosplay stops` : ''}`;
+
     const list = el('exhibitorList');
-    el('exhibitorResultCount').textContent = `${filtered.length} exhibitor / artist entr${filtered.length === 1 ? 'y' : 'ies'} shown · ${exhibitors().length} indexed`;
     list.innerHTML = '';
-    filtered.forEach(item => {
+
+    filtered.slice(0, exhibitorRenderLimit).forEach(item => {
       const card = document.createElement('article');
       card.className = 'browse-card exhibitor-card';
-      const spot = item.booth ? `Booth ${item.booth}` : item.artistTable ? `Artist Alley ${item.artistTable}` : eventLocationLabel(item);
+      const spot = exhibitorSpotLabel(item);
       const saved = isExhibitorTodo(item);
-      const done = Boolean(exhibitorDone[exhibitorId(item)]);
-      const sourceBadge = item.custom ? 'MY ENTRY' : item.sourceKind === 'community' ? 'COMMUNITY-REPORTED' : '2026 INDEXED';
-      card.innerHTML = `<div class="browse-card-top"><div><span class="eyebrow">${escapeHTML(item.category || 'EXHIBITOR')}</span><h3>${escapeHTML(item.name)}</h3></div>${item.booth ? `<span class="booth-pill">#${escapeHTML(item.booth)}</span>` : ''}</div><div class="source-status">${sourceBadge}</div><p class="location-line">${escapeHTML(spot)}</p><p>${escapeHTML(item.note || '')}</p>${saved ? `<div class="todo-status ${done ? 'done' : ''}">${done ? '✓ Visited / done' : '★ On Friday to-do'}</div>` : ''}<div class="card-actions"></div>`;
+      const done = Boolean(exhibitorDone[savedExhibitorTodoId(item)]);
+      const isOfficial = item.sourceKind === 'official-feed';
+      const sourceBadge = item.custom ? 'MY ENTRY' : isOfficial ? 'OFFICIAL NYCC' : 'SUPPLEMENTAL';
+      const eyebrow = item.tags?.[0] || item.category || item.categories?.[0] || 'EXHIBITOR';
+      const boothLabel = item.booth ? `<span class="booth-pill">${escapeHTML(item.booth)}</span>` : '';
+
+      card.innerHTML = `
+        <div class="browse-card-top">
+          <div><span class="eyebrow">${escapeHTML(eyebrow)}</span><h3>${escapeHTML(item.name)}</h3></div>
+          ${boothLabel}
+        </div>
+        <div class="source-status">${sourceBadge}</div>
+        <p class="location-line">${escapeHTML(spot)}</p>
+        <div class="badge-row">${exhibitorBadges(item)}</div>
+        ${item.description ? `<p>${escapeHTML(compactDescription(item.description, 420))}</p>` : item.note ? `<p>${escapeHTML(item.note)}</p>` : ''}
+        ${saved ? `<div class="todo-status ${done ? 'done' : ''}">${done ? '✓ Visited / done' : '★ On Friday to-do'}</div>` : ''}
+        <div class="card-actions"></div>`;
+
+      renderExhibitorSpecials(item, card);
       const actions = card.querySelector('.card-actions');
 
       const todo = document.createElement('button');
@@ -667,18 +795,21 @@
       todo.addEventListener('click', () => toggleExhibitorTodo(item));
       actions.appendChild(todo);
 
-      if (item.booth && window.NYCC_BOOTHS?.[item.booth]) {
-        const show = document.createElement('button');
-        show.className = 'secondary';
-        show.type = 'button';
-        show.textContent = 'Show booth';
-        show.addEventListener('click', () => showBoothOnMap(item.booth));
-        actions.appendChild(show);
+      const mappedBooths = mappedExhibitorBooths(item);
+      if (mappedBooths.length) {
+        const map = document.createElement('button');
+        map.className = 'secondary';
+        map.type = 'button';
+        map.textContent = mappedBooths.length === 1 ? `Map #${mappedBooths[0]}` : `Map ${mappedBooths.length} booths`;
+        map.addEventListener('click', () => showExhibitorBoothsOnMap(mappedBooths));
+        actions.appendChild(map);
+
         const nav = document.createElement('button');
         nav.className = 'secondary';
         nav.type = 'button';
-        nav.textContent = 'Navigate';
-        nav.addEventListener('click', () => navigateToItem({ booth: item.booth }));
+        nav.textContent = mappedBooths.length === 1 ? 'Navigate' : `Navigate #${mappedBooths[0]}`;
+        nav.title = mappedBooths.length > 1 ? `Routes to the first mapped show-floor booth, #${mappedBooths[0]}` : '';
+        nav.addEventListener('click', () => navigateToItem({ booth: mappedBooths[0] }));
         actions.appendChild(nav);
       } else if (item.locationId) {
         const nav = document.createElement('button');
@@ -688,7 +819,11 @@
         nav.addEventListener('click', () => navigateToItem(item));
         actions.appendChild(nav);
       }
-      if (item.sourceUrl) actions.appendChild(externalLink(item.sourceUrl, 'Info'));
+
+      if (item.website) actions.appendChild(externalLink(item.website, 'Website'));
+      if (item.storeUrl && item.storeUrl !== item.website) actions.appendChild(externalLink(item.storeUrl, 'Store'));
+      if (item.sourceUrl && !item.website && !item.storeUrl) actions.appendChild(externalLink(item.sourceUrl, 'NYCC directory'));
+
       if (item.custom) {
         const removeCustom = document.createElement('button');
         removeCustom.className = 'secondary danger-outline';
@@ -699,6 +834,10 @@
       }
       list.appendChild(card);
     });
+
+    const more = el('exhibitorLoadMoreBtn');
+    more.hidden = shown >= filtered.length;
+    more.textContent = `Show more (${filtered.length - shown} remaining)`;
   }
 
   function externalLink(url, label) {
@@ -780,6 +919,7 @@
 
   function navigateToItem(item) {
     activeBooth = item.booth || null;
+    activeBooths = activeBooth ? [activeBooth] : [];
     destinationId = item.locationId || (item.booth ? 'l3_show_floor' : destinationId);
     if (!window.NYCC_LOCATIONS[destinationId]) return;
     el('destinationSelect').value = destinationId;
@@ -788,7 +928,13 @@
   }
 
   function showBoothOnMap(booth) {
-    activeBooth = booth;
+    showExhibitorBoothsOnMap([booth]);
+  }
+
+  function showExhibitorBoothsOnMap(booths) {
+    activeBooths = [...new Set((booths || []).filter(booth => window.NYCC_BOOTHS?.[booth]))];
+    activeBooth = activeBooths[0] || null;
+    if (!activeBooth) return;
     destinationId = 'l3_show_floor';
     el('destinationSelect').value = destinationId;
     activeMap = 'showfloor';
@@ -920,6 +1066,7 @@
         button.title = loc.name;
         button.addEventListener('click', () => {
           activeBooth = null;
+          activeBooths = [];
           destinationId = id;
           el('destinationSelect').value = id;
           buildAndRenderRoute();
@@ -928,22 +1075,25 @@
         markers.appendChild(button);
       });
 
-    if (activeBooth && activeMap === 'showfloor' && window.NYCC_BOOTHS?.[activeBooth]) {
-      const booth = window.NYCC_BOOTHS[activeBooth];
-      const marker = document.createElement('button');
-      marker.type = 'button';
-      marker.className = 'map-marker booth';
-      marker.style.left = `${booth.x}%`;
-      marker.style.top = `${booth.y}%`;
-      marker.setAttribute('aria-label', `Booth ${activeBooth}`);
-      marker.title = `Booth ${activeBooth}`;
-      markers.appendChild(marker);
+    if (activeBooths.length && activeMap === 'showfloor') {
+      activeBooths.forEach(boothNumber => {
+        const booth = window.NYCC_BOOTHS?.[boothNumber];
+        if (!booth) return;
+        const marker = document.createElement('button');
+        marker.type = 'button';
+        marker.className = 'map-marker booth';
+        marker.style.left = `${booth.x}%`;
+        marker.style.top = `${booth.y}%`;
+        marker.setAttribute('aria-label', `Booth ${boothNumber}`);
+        marker.title = `Booth ${boothNumber}`;
+        markers.appendChild(marker);
+      });
     }
 
     const legend = [];
     if (current?.map === activeMap) legend.push('<span><i class="legend-dot current"></i>Your selected indoor start</span>');
     if (!activeBooth && destination?.map === activeMap) legend.push('<span><i class="legend-dot destination"></i>Destination</span>');
-    if (activeBooth && activeMap === 'showfloor') legend.push(`<span><i class="legend-dot booth"></i>Booth ${escapeHTML(activeBooth)}</span>`);
+    if (activeBooths.length && activeMap === 'showfloor') legend.push(`<span><i class="legend-dot booth"></i>${activeBooths.length === 1 ? `Booth ${escapeHTML(activeBooths[0])}` : `${activeBooths.length} exhibitor booths`}</span>`);
     legend.push('<span>Tap a black marker to route there</span>');
     el('mapLegend').innerHTML = legend.join('');
   }
@@ -960,6 +1110,7 @@
       return;
     }
     activeBooth = booth;
+    activeBooths = [booth];
     destinationId = 'l3_show_floor';
     el('destinationSelect').value = destinationId;
     activeMap = 'showfloor';
@@ -1165,7 +1316,7 @@
 
   function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=14').catch(() => { el('offlineBadge').textContent = 'Friday-first · Online only'; });
+      navigator.serviceWorker.register('./sw.js?v=16').catch(() => { el('offlineBadge').textContent = 'Friday-first · Online only'; });
     } else el('offlineBadge').textContent = 'Friday-first · Online only';
   }
 
@@ -1186,7 +1337,10 @@
     el('eventSearch').addEventListener('input', renderBrowse);
     el('eventCategory').addEventListener('change', renderBrowse);
     el('guestSearch').addEventListener('input', renderGuests);
-    el('exhibitorSearch').addEventListener('input', renderExhibitors);
+    el('exhibitorSearch').addEventListener('input', () => { exhibitorRenderLimit = 80; renderExhibitors(); });
+    el('exhibitorFilter').addEventListener('change', () => { exhibitorRenderLimit = 80; renderExhibitors(); });
+    el('exhibitorTag').addEventListener('change', () => { exhibitorRenderLimit = 80; renderExhibitors(); });
+    el('exhibitorLoadMoreBtn').addEventListener('click', () => { exhibitorRenderLimit += 80; renderExhibitors(); });
     el('addMissingExhibitorBtn').addEventListener('click', openExhibitorDialog);
     el('closeExhibitorDialogBtn').addEventListener('click', closeExhibitorDialog);
     el('cancelExhibitorBtn').addEventListener('click', closeExhibitorDialog);
@@ -1199,6 +1353,7 @@
     });
     el('destinationSelect').addEventListener('change', () => {
       activeBooth = null;
+      activeBooths = [];
       destinationId = el('destinationSelect').value;
       renderMap();
     });

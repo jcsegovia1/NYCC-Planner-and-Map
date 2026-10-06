@@ -495,3 +495,62 @@ dialog::backdrop { background: rgba(0,0,0,.45); }
 @media (max-width: 760px) {
   .section-actions { justify-content: flex-start; }
 }
+
+
+/* v16: complete official exhibitor feed */
+.filter-bar.exhibitor-filters {
+  grid-template-columns: minmax(0, 1fr) minmax(160px, 220px) minmax(180px, 250px);
+}
+.exhibitor-specials {
+  margin-top: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+.exhibitor-specials summary {
+  cursor: pointer;
+  color: var(--accent-2);
+  font-weight: 800;
+  font-size: .84rem;
+}
+.special-list {
+  display: grid;
+  gap: 9px;
+  margin-top: 10px;
+}
+.special-item {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px;
+  background: var(--surface-2);
+}
+.special-title {
+  color: var(--text);
+  font-weight: 800;
+  font-size: .84rem;
+}
+.special-price {
+  display: inline-block;
+  margin-left: 8px;
+  color: var(--accent-2);
+  white-space: nowrap;
+}
+.special-description {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: .78rem;
+  line-height: 1.4;
+}
+.special-item .link-button {
+  margin-top: 8px;
+  min-height: 36px;
+  padding: 6px 10px;
+  font-size: .78rem;
+}
+.load-more-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 18px 0 4px;
+}
+@media (max-width: 850px) {
+  .filter-bar.exhibitor-filters { grid-template-columns: 1fr; }
+}
