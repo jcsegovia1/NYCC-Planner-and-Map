@@ -311,7 +311,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Travis Willingham"
       ],
@@ -332,7 +332,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Matthew Mercer",
           "Travis Willingham"
@@ -354,7 +354,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Matthew Mercer"
       ],
@@ -375,7 +375,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Wilson Bethel",
           "Charlie Cox",
@@ -400,7 +400,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Charlie Cox"
       ],
@@ -420,7 +420,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Paul Bettany"
       ],
@@ -441,7 +441,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Krysten Ritter"
       ],
@@ -462,7 +462,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Lena Headey"
       ],
@@ -483,7 +483,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Kane Hodder"
       ],
@@ -504,7 +504,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Charlie Cox",
           "Jennifer English",
@@ -527,7 +527,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Ben Starr"
       ],
@@ -548,7 +548,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Jennifer English",
           "Neil Newbon"
@@ -570,7 +570,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Sebastian Stan"
       ],
@@ -592,7 +592,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Hayden Christensen",
           "Rosario Dawson"
@@ -615,7 +615,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Jennifer English"
       ],
@@ -635,7 +635,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Neil Newbon"
       ],
@@ -655,7 +655,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Matthew Lillard"
       ],
@@ -676,7 +676,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Mick Foley"
       ],
@@ -696,7 +696,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Rosario Dawson"
       ],
@@ -717,7 +717,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Deborah Ann Woll"
       ],
@@ -737,7 +737,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Hayden Christensen"
       ],
@@ -758,7 +758,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Jamie Kennedy"
       ],
@@ -778,7 +778,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Lee Waddell"
       ],
@@ -799,7 +799,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Jamie Kennedy",
           "Matthew Lillard",
@@ -824,7 +824,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Wilson Bethel"
       ],
@@ -845,7 +845,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Jason Mewes"
       ],
@@ -865,7 +865,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Hayden Christensen"
       ],
@@ -879,6 +879,8 @@ window.NYCC_EVENTS = [
       "date": "2026-10-09",
       "start": "14:40",
       "durationMinutes": 10,
+      "defaultPlanStart": "13:40",
+      "defaultPlanEnd": "14:50",
       "locationId": "l1_photo_ops",
       "category": "Photo Op",
       "tags": [
@@ -886,7 +888,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Matthew Lillard"
       ],
@@ -907,7 +909,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Skeet Ulrich"
       ],
@@ -928,7 +930,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Joe Lo Truglio"
       ],
@@ -948,7 +950,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Melissa Fumero"
       ],
@@ -969,7 +971,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Stephanie Beatriz",
           "Melissa Fumero",
@@ -992,7 +994,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Charlie Cox"
       ],
@@ -1013,7 +1015,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Melissa Benoist"
       ],
@@ -1035,7 +1037,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Melissa Benoist",
           "Grant Gustin"
@@ -1058,7 +1060,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Danielle Panabaker"
       ],
@@ -1078,7 +1080,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Stephanie Beatriz"
       ],
@@ -1099,7 +1101,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Grant Gustin",
           "Danielle Panabaker",
@@ -1124,7 +1126,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Carlos Valdes"
       ],
@@ -1144,7 +1146,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "John Wesley Shipp"
       ],
@@ -1164,7 +1166,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Nancy Allen"
       ],
@@ -1184,7 +1186,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Grant Gustin"
       ],
@@ -1206,7 +1208,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Nancy Allen",
           "Peter Weller"
@@ -1229,7 +1231,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Nolan North"
       ],
@@ -1250,7 +1252,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Nolan North"
       ],
@@ -1270,7 +1272,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Peter Weller"
       ],
@@ -1290,7 +1292,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Matt Smith"
       ],
@@ -1311,7 +1313,7 @@ window.NYCC_EVENTS = [
       ],
       "photoOp": true,
       "ticketed": true,
-      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "description": "Public Epic photo-op session/group time. Your ticket may give you a different go/queue time; set that separately when you save this to My Friday.",
       "guests": [
           "Yuri Lowenthal"
       ],

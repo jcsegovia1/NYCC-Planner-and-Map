@@ -403,3 +403,23 @@ dialog::backdrop { background: rgba(0,0,0,.45); }
   .timed-item-row { align-items: flex-start; }
   .timed-item-info { grid-template-columns: 1fr; gap: 1px; }
 }
+
+
+/* v9: photo-op planning separates public session time from personal queue time */
+.photo-official-info {
+  display: grid; gap: 4px; padding: 12px 14px; border: 1px solid var(--line);
+  border-radius: 12px; background: var(--surface-2);
+}
+.photo-official-info strong { font-size: 1rem; }
+.photo-official-info span { color: var(--muted); font-size: .86rem; }
+.photo-dialog-actions { align-items: center; flex-wrap: wrap; }
+.dialog-spacer { flex: 1 1 auto; }
+.danger-outline { color: #c45c52; border-color: #6a3b38; }
+.photo-plan-note { margin-top: 4px; color: var(--muted); font-size: .82rem; }
+.photo-plan-note strong { color: var(--text); }
+.official-time-label { color: var(--muted); font-size: .76rem; font-weight: 800; letter-spacing: .03em; }
+@media (max-width: 520px) {
+  .photo-dialog-actions { justify-content: stretch; }
+  .photo-dialog-actions > button { flex: 1 1 100%; }
+  .dialog-spacer { display: none; }
+}

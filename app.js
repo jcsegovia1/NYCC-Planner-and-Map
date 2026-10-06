@@ -11,9 +11,11 @@
   const STORAGE_EVENTS = 'nycc2026-personal-events-v1';
   const STORAGE_SAVED = 'nycc2026-friday-saved-v1';
   const STORAGE_START = 'nycc2026-current-location-v1';
+  const STORAGE_EVENT_OVERRIDES = 'nycc2026-friday-event-overrides-v1';
 
   let personalEvents = loadArray(STORAGE_EVENTS).filter(e => !e.date || e.date === FRIDAY).map(e => ({ ...e, date: FRIDAY }));
   let savedOfficialIds = loadArray(STORAGE_SAVED).filter(id => typeof id === 'string');
+  let eventOverrides = loadObject(STORAGE_EVENT_OVERRIDES);
   let currentLocationId = localStorage.getItem(STORAGE_START) || 'l1_hall_center';
   let destinationId = 'l1_main_stage';
   let activeRoute = null;
@@ -37,9 +39,19 @@
     }
   }
 
+  function loadObject(key) {
+    try {
+      const value = JSON.parse(localStorage.getItem(key));
+      return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+    } catch (_) {
+      return {};
+    }
+  }
+
   function savePlan() {
     localStorage.setItem(STORAGE_EVENTS, JSON.stringify(personalEvents));
     localStorage.setItem(STORAGE_SAVED, JSON.stringify(savedOfficialIds));
+    localStorage.setItem(STORAGE_EVENT_OVERRIDES, JSON.stringify(eventOverrides));
   }
 
   function escapeHTML(value) {
@@ -53,8 +65,21 @@
     return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
   }
 
+  function addMinutesToTime(time, amount) {
+    const base = minutes(time);
+    if (base === null) return '';
+    const total = Math.max(0, Math.min(23 * 60 + 59, base + amount));
+    return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+  }
+
   function timeRange(item) {
     return item.end ? `${formatTime(item.start)}–${formatTime(item.end)}` : formatTime(item.start);
+  }
+
+  function photoOfficialLabel(item) {
+    const bits = [item.start ? formatTime(item.start) : 'Time TBD'];
+    if (item.group) bits.push(item.group);
+    return bits.join(' · ');
   }
 
   function minutes(time) {
@@ -96,17 +121,42 @@
   }
 
   function toggleSaved(id) {
+    const event = events().find(item => item.id === id);
+    if (event?.photoOp) {
+      openPhotoPlanDialog(event);
+      return;
+    }
     if (isSaved(id)) savedOfficialIds = savedOfficialIds.filter(value => value !== id);
     else savedOfficialIds.push(id);
     savePlan();
+    renderAllPlanViews();
+  }
+
+  function renderAllPlanViews() {
     renderMyFriday();
     renderBrowse();
     renderActivities();
     renderGuests();
   }
 
+  function plannedOfficialEvent(event) {
+    if (!event.photoOp) return { ...event, sourceType: 'official' };
+    const override = eventOverrides[event.id] || {};
+    const planStart = override.start || event.defaultPlanStart || event.start;
+    const planEnd = override.end || event.defaultPlanEnd || undefined;
+    return {
+      ...event,
+      sourceType: 'official',
+      officialStart: event.start,
+      officialEnd: event.end,
+      start: planStart,
+      end: planEnd,
+      planNotes: override.notes || undefined
+    };
+  }
+
   function myFridayItems() {
-    const official = events().filter(event => isSaved(event.id)).map(event => ({ ...event, sourceType: 'official' }));
+    const official = events().filter(event => isSaved(event.id)).map(plannedOfficialEvent);
     const personal = personalEvents.map(event => ({ ...event, sourceType: 'personal' }));
     return [...official, ...personal].sort((a, b) => (a.start || '99:99').localeCompare(b.start || '99:99') || (a.title || '').localeCompare(b.title || ''));
   }
@@ -162,7 +212,8 @@
 
       const body = document.createElement('div');
       body.className = 'event-card-body';
-      body.innerHTML = `${conflicts.has(item.id) ? '<span class="conflict-label">TIME CONFLICT</span>' : ''}<div class="event-title">${escapeHTML(item.title || 'Untitled item')}</div><div class="event-meta">${escapeHTML(eventLocationLabel(item))}</div>${item.category ? `<div class="event-notes">${escapeHTML(item.category)}</div>` : ''}${item.notes ? `<div class="event-notes">${escapeHTML(item.notes)}</div>` : ''}`;
+      const photoPlanInfo = item.photoOp ? `<div class="photo-plan-note"><strong>Official session:</strong> ${escapeHTML(photoOfficialLabel({ ...item, start: item.officialStart || item.start }))}${item.planNotes ? ` · ${escapeHTML(item.planNotes)}` : ''}</div>` : '';
+      body.innerHTML = `${conflicts.has(item.id) ? '<span class="conflict-label">TIME CONFLICT</span>' : ''}<div class="event-title">${escapeHTML(item.title || 'Untitled item')}</div><div class="event-meta">${escapeHTML(eventLocationLabel(item))}</div>${item.category ? `<div class="event-notes">${escapeHTML(item.category)}</div>` : ''}${item.notes ? `<div class="event-notes">${escapeHTML(item.notes)}</div>` : ''}${photoPlanInfo}`;
 
       const actions = document.createElement('div');
       actions.className = 'event-actions';
@@ -173,6 +224,17 @@
         nav.textContent = 'Navigate';
         nav.addEventListener('click', () => navigateToItem(item));
         actions.appendChild(nav);
+      }
+      if (item.photoOp && item.sourceType === 'official') {
+        const editTime = document.createElement('button');
+        editTime.className = 'secondary';
+        editTime.type = 'button';
+        editTime.textContent = 'Edit my time';
+        editTime.addEventListener('click', () => {
+          const original = events().find(event => event.id === item.id);
+          if (original) openPhotoPlanDialog(original);
+        });
+        actions.appendChild(editTime);
       }
       if (item.sourceUrl) {
         const source = document.createElement('a');
@@ -188,7 +250,7 @@
       remove.type = 'button';
       remove.textContent = 'Remove';
       remove.addEventListener('click', () => {
-        if (item.sourceType === 'official') savedOfficialIds = savedOfficialIds.filter(id => id !== item.id);
+        if (item.sourceType === 'official') { savedOfficialIds = savedOfficialIds.filter(id => id !== item.id); delete eventOverrides[item.id]; }
         else personalEvents = personalEvents.filter(event => event.id !== item.id);
         savePlan();
         renderMyFriday();
@@ -229,7 +291,7 @@
       card.className = 'browse-card event-browse-card';
       const guestLine = event.guests?.length ? `<p class="card-people"><strong>Guests:</strong> ${escapeHTML(event.guests.join(', '))}</p>` : '';
       card.innerHTML = `
-        <div class="browse-card-top"><div><span class="eyebrow">${escapeHTML(timeRange(event))}</span><h3>${escapeHTML(event.title)}</h3></div><span class="category-pill">${escapeHTML(event.category || 'Programming')}</span></div>
+        <div class="browse-card-top"><div><span class="eyebrow">${escapeHTML(event.photoOp ? `OFFICIAL SESSION · ${photoOfficialLabel(event)}` : timeRange(event))}</span><h3>${escapeHTML(event.title)}</h3></div><span class="category-pill">${escapeHTML(event.category || 'Programming')}</span></div>
         <p class="location-line">${escapeHTML(eventLocationLabel(event))}</p>
         <div class="badge-row">${flagBadges(event)}</div>
         <p>${escapeHTML(event.description || '')}</p>
@@ -239,7 +301,7 @@
       const save = document.createElement('button');
       save.className = isSaved(event.id) ? 'saved-button' : 'primary';
       save.type = 'button';
-      save.textContent = isSaved(event.id) ? '✓ Saved' : '+ My Friday';
+      save.textContent = event.photoOp ? (isSaved(event.id) ? 'Edit my time' : '+ Plan photo op') : (isSaved(event.id) ? '✓ Saved' : '+ My Friday');
       save.addEventListener('click', () => toggleSaved(event.id));
       actions.appendChild(save);
       if (event.locationId || event.booth) {
@@ -273,11 +335,11 @@
       row.className = 'timed-item-row';
       const info = document.createElement('div');
       info.className = 'timed-item-info';
-      info.innerHTML = `<strong>${escapeHTML(formatTime(event.start))}</strong><span>${escapeHTML(event.title)}</span>`;
+      info.innerHTML = `<strong>${escapeHTML(event.photoOp ? photoOfficialLabel(event) : formatTime(event.start))}</strong><span>${escapeHTML(event.title)}</span>`;
       const save = document.createElement('button');
       save.type = 'button';
       save.className = isSaved(event.id) ? 'saved-button mini-save' : 'secondary mini-save';
-      save.textContent = isSaved(event.id) ? '✓ Saved' : '+ Save';
+      save.textContent = event.photoOp ? (isSaved(event.id) ? 'Edit time' : '+ Plan') : (isSaved(event.id) ? '✓ Saved' : '+ Save');
       save.addEventListener('click', () => toggleSaved(event.id));
       row.append(info, save);
       wrap.appendChild(row);
@@ -354,7 +416,7 @@
     const query = el('guestSearch').value.trim().toLowerCase();
     const all = allGuestRecords();
     const filtered = all.filter(guest => [guest.name, guest.type, guest.knownFor, guest.fridayNote, ...(guest.eventTitles || [])].join(' ').toLowerCase().includes(query));
-    el('guestResultCount').textContent = `${filtered.length} Friday guest / panelist record${filtered.length === 1 ? '' : 's'} shown · timed photo ops appear as saveable schedule items`;
+    el('guestResultCount').textContent = `${filtered.length} Friday guest / panelist record${filtered.length === 1 ? '' : 's'} shown · photo ops can be saved with your personal go/queue time`;
     const list = el('guestList');
     list.innerHTML = '';
     filtered.forEach(guest => {
@@ -696,6 +758,49 @@
     renderMap();
   }
 
+  function openPhotoPlanDialog(event) {
+    if (!event?.photoOp) return;
+    const override = eventOverrides[event.id] || {};
+    el('photoPlanEventId').value = event.id;
+    el('photoOfficialInfo').innerHTML = `<strong>${escapeHTML(event.title)}</strong><span>Public Epic session: ${escapeHTML(photoOfficialLabel(event))} · ${escapeHTML(eventLocationLabel(event))}</span>`;
+    el('photoPlanStart').value = override.start || event.defaultPlanStart || event.start || '';
+    el('photoPlanEnd').value = override.end || event.defaultPlanEnd || (event.start ? addMinutesToTime(event.start, Number.isFinite(event.durationMinutes) ? event.durationMinutes : 10) : '');
+    el('photoPlanNotes').value = override.notes || '';
+    el('removePhotoPlanBtn').hidden = !isSaved(event.id);
+    el('photoPlanDialog').showModal();
+  }
+
+  function closePhotoPlanDialog() {
+    el('photoPlanDialog').close();
+  }
+
+  function savePhotoPlanFromForm() {
+    const id = el('photoPlanEventId').value;
+    const event = events().find(item => item.id === id);
+    if (!event?.photoOp) return;
+    const start = el('photoPlanStart').value;
+    const end = el('photoPlanEnd').value;
+    const notes = el('photoPlanNotes').value.trim();
+    if (!start) { toast('Set the time you need to go or queue'); return; }
+    if (end && minutes(end) <= minutes(start)) { toast('Block-until time must be after your go time'); return; }
+    eventOverrides[id] = { start, end: end || undefined, notes: notes || undefined };
+    if (!isSaved(id)) savedOfficialIds.push(id);
+    savePlan();
+    renderAllPlanViews();
+    closePhotoPlanDialog();
+    toast('Photo op added to My Friday with your time');
+  }
+
+  function removePhotoPlan() {
+    const id = el('photoPlanEventId').value;
+    savedOfficialIds = savedOfficialIds.filter(value => value !== id);
+    delete eventOverrides[id];
+    savePlan();
+    renderAllPlanViews();
+    closePhotoPlanDialog();
+    toast('Photo op removed from My Friday');
+  }
+
   function openEventDialog(prefill = {}) {
     el('eventForm').reset();
     el('eventTitle').value = prefill.title || '';
@@ -740,7 +845,7 @@
   }
 
   function exportPlan() {
-    const data = JSON.stringify({ version: 2, date: FRIDAY, savedOfficialIds, personalEvents }, null, 2);
+    const data = JSON.stringify({ version: 3, date: FRIDAY, savedOfficialIds, eventOverrides, personalEvents }, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -763,6 +868,7 @@
         } else if (parsed && typeof parsed === 'object') {
           personalEvents = Array.isArray(parsed.personalEvents) ? parsed.personalEvents.filter(e => e && e.title && e.start).map(e => ({ ...e, date: FRIDAY })) : [];
           savedOfficialIds = Array.isArray(parsed.savedOfficialIds) ? parsed.savedOfficialIds.filter(id => events().some(event => event.id === id)) : [];
+          eventOverrides = parsed.eventOverrides && typeof parsed.eventOverrides === 'object' && !Array.isArray(parsed.eventOverrides) ? parsed.eventOverrides : {};
         } else throw new Error('Invalid plan');
         savePlan();
         renderMyFriday();
@@ -845,7 +951,7 @@
 
   function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=8').catch(() => { el('offlineBadge').textContent = 'Friday-first · Online only'; });
+      navigator.serviceWorker.register('./sw.js?v=9').catch(() => { el('offlineBadge').textContent = 'Friday-first · Online only'; });
     } else el('offlineBadge').textContent = 'Friday-first · Online only';
   }
 
@@ -855,6 +961,10 @@
     el('closeDialogBtn').addEventListener('click', closeEventDialog);
     el('cancelEventBtn').addEventListener('click', closeEventDialog);
     el('eventForm').addEventListener('submit', event => { event.preventDefault(); saveEventFromForm(); });
+  el('photoPlanForm').addEventListener('submit', event => { event.preventDefault(); savePhotoPlanFromForm(); });
+  el('closePhotoPlanBtn').addEventListener('click', closePhotoPlanDialog);
+  el('cancelPhotoPlanBtn').addEventListener('click', closePhotoPlanDialog);
+  el('removePhotoPlanBtn').addEventListener('click', removePhotoPlan);
     el('browseFridayBtn').addEventListener('click', () => switchTab('browse'));
     el('exportBtn').addEventListener('click', exportPlan);
     el('importInput').addEventListener('change', event => importPlan(event.target.files[0]));

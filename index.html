@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/icon-192.png">
   <link rel="apple-touch-icon" href="assets/icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=8">
+  <link rel="stylesheet" href="styles.css?v=9">
 </head>
 <body>
   <header class="topbar">
@@ -64,7 +64,7 @@
       <div class="section-head">
         <div>
           <h2 id="browseHeading">Friday schedule</h2>
-          <p>Friday-only programming, activities and timed photo ops. Anything with an indexed Friday start time can be saved to My Friday.</p>
+          <p>Friday-only programming, activities and photo-op sessions. Photo ops keep the public Epic session/group time separate from the time you personally need to go or queue.</p>
         </div>
         <a class="secondary link-button" href="https://www.newyorkcomiccon.com/en-us/schedule/friday/full-schedule.html" target="_blank" rel="noopener">Official Friday page ↗</a>
       </div>
@@ -96,7 +96,7 @@
       <div class="section-head">
         <div>
           <h2 id="guestsHeading">Friday guests</h2>
-          <p>Friday guests, panelists and professional photo ops. Each guest card shows the timed Friday items we have indexed so you can save them individually.</p>
+          <p>Friday guests, panelists and professional photo ops. Photo-op cards show the public session/group time; when you save one, set the go/queue time from your own ticket.</p>
         </div>
         <a class="secondary link-button" href="https://www.newyorkcomiccon.com/en-us/guests.html" target="_blank" rel="noopener">Official guest directory ↗</a>
       </div>
@@ -229,7 +229,7 @@
         </article>
         <article class="card warning-card">
           <h3>Schedule can change</h3>
-          <p>This is a personal helper, not the official NYCC app. Photo-op times/groups, guests, rooms and reservations can change. Epic photo-op cards use the listed start time; the planner uses a 10-minute duration only for conflict checking.</p>
+          <p>This is a personal helper, not the official NYCC app. Photo-op times/groups, guests, rooms and reservations can change. For photo ops, the public Epic session/group time is reference data; My Friday uses the go/queue time and planning window you set from your own ticket.</p>
         </article>
         <article class="card">
           <h3>Data snapshot</h3>
@@ -277,12 +277,47 @@
     </form>
   </dialog>
 
-  <script src="data/locations.js?v=8"></script>
-  <script src="data/booths.js?v=8"></script>
-  <script src="data/events.js?v=8"></script>
-  <script src="data/activities.js?v=8"></script>
-  <script src="data/guests.js?v=8"></script>
-  <script src="data/exhibitors.js?v=8"></script>
-  <script src="app.js?v=8"></script>
+  <dialog id="photoPlanDialog">
+    <form id="photoPlanForm" method="dialog">
+      <div class="dialog-head">
+        <div>
+          <span class="eyebrow">FRIDAY · PHOTO OP</span>
+          <h2>Plan my photo op</h2>
+        </div>
+        <button id="closePhotoPlanBtn" type="button" class="icon-button" aria-label="Close">×</button>
+      </div>
+
+      <input id="photoPlanEventId" type="hidden">
+      <div id="photoOfficialInfo" class="photo-official-info"></div>
+      <p class="data-note">Use the time on your actual ticket for when you need to go or queue. The public Epic session/group time is shown separately and may not be your personal arrival time.</p>
+
+      <div class="form-grid friday-form-grid">
+        <label>My go / queue time
+          <input id="photoPlanStart" type="time" required>
+        </label>
+        <label>Block schedule until
+          <input id="photoPlanEnd" type="time">
+        </label>
+      </div>
+
+      <label for="photoPlanNotes">My notes</label>
+      <textarea id="photoPlanNotes" rows="3" placeholder="Ticket group, QR code note, meetup point…"></textarea>
+
+      <div class="dialog-actions photo-dialog-actions">
+        <button id="removePhotoPlanBtn" type="button" class="secondary danger-outline">Remove from My Friday</button>
+        <span class="dialog-spacer"></span>
+        <button id="cancelPhotoPlanBtn" type="button" class="secondary">Cancel</button>
+        <button type="submit" class="primary">Save photo-op plan</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="data/locations.js?v=9"></script>
+  <script src="data/booths.js?v=9"></script>
+  <script src="data/events.js?v=9"></script>
+  <script src="data/activities.js?v=9"></script>
+  <script src="data/guests.js?v=9"></script>
+  <script src="data/exhibitors.js?v=9"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>

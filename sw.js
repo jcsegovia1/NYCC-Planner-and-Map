@@ -1,4 +1,4 @@
-const CACHE = 'nycc2026-friday-v8';
+const CACHE = 'nycc2026-friday-v9';
 const CORE = [
   './', './index.html', './styles.css', './app.js', './manifest.webmanifest',
   './data/locations.js', './data/booths.js', './data/events.js', './data/activities.js', './data/guests.js', './data/exhibitors.js',
