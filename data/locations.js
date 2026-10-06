@@ -28,6 +28,11 @@ window.NYCC_LOCATIONS = {
   l1_room1c03: { name: 'Room 1C03', floor: 'Level 1', map: 'level1', x: 58, y: 68, category: 'Panel room' },
   l1_pride_lounge: { name: 'Pride Lounge · Rooms 1C01–02', floor: 'Level 1', map: 'level1', x: 64, y: 78, category: 'Lounge' },
   l1_gaming: { name: 'Gaming Side Quest · Hall 1E', floor: 'Level 1', map: 'level1', x: 29, y: 72, category: 'Gaming' },
+  l1_author_signing: { name: 'Author Signing Tables', floor: 'Level 1 • Hall 1A', map: 'level1', x: 66, y: 66, category: 'Signings' },
+  l1_room1a01: { name: 'Room 1A01', floor: 'Level 1', map: 'level1', x: 75, y: 67, category: 'Panel room' },
+  l1_community_stage: { name: 'Community Stage', floor: 'Level 1 • Hall 1E', map: 'level1', x: 24, y: 78, category: 'Stage' },
+  l1_workshops: { name: 'Room 1E05 Workshops', floor: 'Level 1 • Hall 1E', map: 'level1', x: 36, y: 83, category: 'Workshop' },
+
   l1_north_core: { name: 'Level 1 north-side access', short: 'L1 North Access', floor: 'Level 1', map: 'level1', x: 72, y: 58, hidden: true },
   l1_south_core: { name: 'Level 1 south-side access', short: 'L1 South Access', floor: 'Level 1', map: 'level1', x: 34, y: 69, hidden: true },
 
@@ -49,12 +54,12 @@ window.NYCC_LOCATIONS = {
   l4_pro_stage2: { name: 'Pro Stage 2', floor: 'Level 4 • River Pavilion', map: 'level4', x: 36, y: 47, category: 'Stage' },
 
   l4_north_core: { name: 'North Javits Level 4 access', floor: 'Level 4 • North Javits', map: 'level4', x: 82, y: 39, category: 'Elevator' },
-  l4_room409: { name: 'Room 409', floor: 'Level 4 • North Javits', map: 'level4', x: 65, y: 19, category: 'Panel room' },
-  l4_room408: { name: 'Room 408', floor: 'Level 4 • North Javits', map: 'level4', x: 68, y: 23, category: 'Panel room' },
-  l4_room4061: { name: 'Room 406.1', floor: 'Level 4 • North Javits', map: 'level4', x: 70.5, y: 28, category: 'Panel room' },
-  l4_room4062: { name: 'Room 406.2', floor: 'Level 4 • North Javits', map: 'level4', x: 72.5, y: 27, category: 'Panel room' },
-  l4_room4063: { name: 'Room 406.3', floor: 'Level 4 • North Javits', map: 'level4', x: 74.5, y: 26, category: 'Panel room' },
-  l4_room405: { name: 'Room 405', floor: 'Level 4 • North Javits', map: 'level4', x: 79, y: 30, category: 'Panel room' },
+  l4_room409: { name: 'North-Room 409', floor: 'Level 4 • North Javits', map: 'level4', x: 65, y: 19, category: 'Panel room' },
+  l4_room408: { name: 'North-Room 408', floor: 'Level 4 • North Javits', map: 'level4', x: 68, y: 23, category: 'Panel room' },
+  l4_room4061: { name: 'North-Room 406.1', floor: 'Level 4 • North Javits', map: 'level4', x: 70.5, y: 28, category: 'Panel room' },
+  l4_room4062: { name: 'North-Room 406.2', floor: 'Level 4 • North Javits', map: 'level4', x: 72.5, y: 27, category: 'Panel room' },
+  l4_room4063: { name: 'North-Room 406.3', floor: 'Level 4 • North Javits', map: 'level4', x: 74.5, y: 26, category: 'Panel room' },
+  l4_room405: { name: 'North-Room 405', floor: 'Level 4 • North Javits', map: 'level4', x: 79, y: 30, category: 'Panel room' },
 
   l5_core: { name: 'Level 5 access', floor: 'Level 5', map: 'level5', x: 80, y: 28, hidden: true },
   l5_empire_queue: { name: 'Empire Stage Queue', floor: 'Level 5', map: 'level5', x: 77, y: 23, category: 'Queue' },
@@ -78,6 +83,11 @@ window.NYCC_EDGES = [
   ['l1_hall_center','l1_gaming',3],
   ['l1_hall_center','l1_south_core',1],
   ['l1_hall_center','l1_north_core',2],
+  ['l1_hall_center','l1_author_signing',3],
+  ['l1_hall_center','l1_room1a01',4],
+  ['l1_hall_center','l1_community_stage',3],
+  ['l1_hall_center','l1_workshops',4],
+
 
   ['l1_south_core','l2_south_concourse',2,'Use the nearby stairs/elevator between Level 1 and Level 2.'],
   ['l1_north_core','l2_north_concourse',2,'Use the north-side stairs/elevator between Level 1 and Level 2.'],

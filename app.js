@@ -124,8 +124,17 @@
     return item.end ? `${formatTime(item.start)}–${formatTime(item.end)}` : formatTime(item.start);
   }
 
+  function compactDescription(value, limit = 420) {
+    const text = String(value || '').replace(/\s+/g, ' ').trim();
+    return text.length > limit ? `${text.slice(0, limit - 1).trimEnd()}…` : text;
+  }
+
   function photoOfficialLabel(item) {
-    const bits = [item.start ? formatTime(item.start) : 'Time TBD'];
+    const start = item.officialStart || item.start;
+    const end = item.officialEnd || item.end;
+    let first = start ? formatTime(start) : 'Time TBD';
+    if (item.officialWindow && start && end) first = `${formatTime(start)}–${formatTime(end)} window`;
+    const bits = [first];
     if (item.group) bits.push(item.group);
     return bits.join(' · ');
   }
@@ -146,7 +155,10 @@
     if (item.booth) return `Booth ${item.booth} · Level 3 Show Floor`;
     if (item.locationId && window.NYCC_LOCATIONS?.[item.locationId]) {
       const loc = window.NYCC_LOCATIONS[item.locationId];
-      return `${loc.name} · ${loc.floor}`;
+      const exact = String(item.location || '').trim();
+      return exact && exact.toLowerCase() !== String(loc.name || '').toLowerCase()
+        ? `${exact} · ${loc.floor}`
+        : `${loc.name} · ${loc.floor}`;
     }
     return item.location || 'Location not listed';
   }
@@ -160,6 +172,7 @@
     if (item.soldOut) labels.push(['SOLD OUT', 'important']);
     if (item.group) labels.push([item.group, '']);
     if (item.afterDark) labels.push(['After Dark', 'late']);
+    if (item.livestream) labels.push(['Livestream', '']);
     (item.tags || []).slice(0, 3).forEach(tag => labels.push([tag, '']));
     return labels.map(([label, cls]) => `<span class="badge ${cls}">${escapeHTML(label)}</span>`).join('');
   }
@@ -266,7 +279,7 @@
           ? `<div class="saved-event-guests"><strong>Guests:</strong> ${escapeHTML(item.guests.join(', '))}</div>`
           : '';
         const savedDescription = item.description
-          ? `<div class="saved-event-description">${escapeHTML(item.description)}</div>`
+          ? `<div class="saved-event-description">${escapeHTML(compactDescription(item.description, 520))}</div>`
           : '';
         const photoPlanInfo = item.photoOp
           ? `<div class="photo-plan-note"><strong>Official session:</strong> ${escapeHTML(photoOfficialLabel({ ...item, start: item.officialStart || item.start }))}${item.planNotes ? ` · ${escapeHTML(item.planNotes)}` : ''}</div>`
@@ -422,7 +435,7 @@
         <div class="browse-card-top"><div><span class="eyebrow">${escapeHTML(event.photoOp ? `OFFICIAL SESSION · ${photoOfficialLabel(event)}` : timeRange(event))}</span><h3>${escapeHTML(event.title)}</h3></div><span class="category-pill">${escapeHTML(event.category || 'Programming')}</span></div>
         <p class="location-line">${escapeHTML(eventLocationLabel(event))}</p>
         <div class="badge-row">${flagBadges(event)}</div>
-        <p>${escapeHTML(event.description || '')}</p>
+        <p>${escapeHTML(compactDescription(event.description || ''))}</p>
         ${guestLine}
         <div class="card-actions"></div>`;
       const actions = card.querySelector('.card-actions');
@@ -959,9 +972,9 @@
     if (!event?.photoOp) return;
     const override = eventOverrides[event.id] || {};
     el('photoPlanEventId').value = event.id;
-    el('photoOfficialInfo').innerHTML = `<strong>${escapeHTML(event.title)}</strong><span>Public Epic session: ${escapeHTML(photoOfficialLabel(event))} · ${escapeHTML(eventLocationLabel(event))}</span>`;
-    el('photoPlanStart').value = override.start || event.defaultPlanStart || event.start || '';
-    el('photoPlanEnd').value = override.end || event.defaultPlanEnd || (event.start ? addMinutesToTime(event.start, Number.isFinite(event.durationMinutes) ? event.durationMinutes : 10) : '');
+    el('photoOfficialInfo').innerHTML = `<strong>${escapeHTML(event.title)}</strong><span>Official listed window: ${escapeHTML(photoOfficialLabel(event))} · ${escapeHTML(eventLocationLabel(event))}</span>`;
+    el('photoPlanStart').value = override.start || event.defaultPlanStart || (event.officialWindow ? '' : (event.start || ''));
+    el('photoPlanEnd').value = override.end || event.defaultPlanEnd || (event.officialWindow ? '' : (event.start ? addMinutesToTime(event.start, Number.isFinite(event.durationMinutes) ? event.durationMinutes : 10) : ''));
     el('photoPlanNotes').value = override.notes || '';
     el('removePhotoPlanBtn').hidden = !isSaved(event.id);
     el('photoPlanDialog').showModal();
@@ -1152,7 +1165,7 @@
 
   function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=12').catch(() => { el('offlineBadge').textContent = 'Friday-first · Online only'; });
+      navigator.serviceWorker.register('./sw.js?v=14').catch(() => { el('offlineBadge').textContent = 'Friday-first · Online only'; });
     } else el('offlineBadge').textContent = 'Friday-first · Online only';
   }
 
