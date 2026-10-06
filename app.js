@@ -66,7 +66,7 @@
   function itemEndMinutes(item) {
     const start = minutes(item.start);
     if (start === null) return null;
-    return minutes(item.end) ?? (start + 45);
+    return minutes(item.end) ?? (Number.isFinite(item.durationMinutes) ? start + item.durationMinutes : start + 45);
   }
 
   function eventLocationLabel(item) {
@@ -82,6 +82,10 @@
     const labels = [];
     if (item.reservation) labels.push(['Reservation', 'important']);
     if (item.ticketed) labels.push(['Ticketed', 'important']);
+    if (item.photoOp) labels.push(['Photo Op', 'photo']);
+    if (item.teamUp) labels.push(['TeamUp', '']);
+    if (item.soldOut) labels.push(['SOLD OUT', 'important']);
+    if (item.group) labels.push([item.group, '']);
     if (item.afterDark) labels.push(['After Dark', 'late']);
     (item.tags || []).slice(0, 3).forEach(tag => labels.push([tag, '']));
     return labels.map(([label, cls]) => `<span class="badge ${cls}">${escapeHTML(label)}</span>`).join('');
@@ -97,6 +101,8 @@
     savePlan();
     renderMyFriday();
     renderBrowse();
+    renderActivities();
+    renderGuests();
   }
 
   function myFridayItems() {
@@ -249,41 +255,97 @@
     });
   }
 
+  function activityEventIds(activity) {
+    return [...new Set([...(activity.eventIds || []), ...(activity.eventId ? [activity.eventId] : [])])];
+  }
+
+  function createTimedItemRows(ids) {
+    const matches = ids.map(id => events().find(event => event.id === id)).filter(Boolean).sort((a, b) => (a.start || '99:99').localeCompare(b.start || '99:99'));
+    if (!matches.length) return null;
+    const wrap = document.createElement('div');
+    wrap.className = 'timed-items';
+    const heading = document.createElement('div');
+    heading.className = 'timed-items-heading';
+    heading.textContent = 'Timed Friday items';
+    wrap.appendChild(heading);
+    matches.forEach(event => {
+      const row = document.createElement('div');
+      row.className = 'timed-item-row';
+      const info = document.createElement('div');
+      info.className = 'timed-item-info';
+      info.innerHTML = `<strong>${escapeHTML(formatTime(event.start))}</strong><span>${escapeHTML(event.title)}</span>`;
+      const save = document.createElement('button');
+      save.type = 'button';
+      save.className = isSaved(event.id) ? 'saved-button mini-save' : 'secondary mini-save';
+      save.textContent = isSaved(event.id) ? '✓ Saved' : '+ Save';
+      save.addEventListener('click', () => toggleSaved(event.id));
+      row.append(info, save);
+      wrap.appendChild(row);
+    });
+    return wrap;
+  }
+
+  function planActivity(activity) {
+    openEventDialog({
+      title: activity.name,
+      locationId: activity.locationId,
+      notes: `${activity.hours || 'Friday activity'}${activity.location ? ` · ${activity.location}` : ''}`
+    });
+  }
+
   function renderActivities() {
     const list = el('activitiesList');
     list.innerHTML = '';
     activities().forEach(activity => {
       const card = document.createElement('article');
       card.className = 'browse-card';
-      card.innerHTML = `<div class="browse-card-top"><div><span class="eyebrow">${escapeHTML(activity.hours || 'Friday')}</span><h3>${escapeHTML(activity.name)}</h3></div></div><p class="location-line">${escapeHTML(activity.location || eventLocationLabel(activity))}</p><p>${escapeHTML(activity.description || '')}</p>${activity.highlights?.length ? `<ul class="compact-list">${activity.highlights.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul>` : ''}<div class="card-actions"></div>`;
-      const actions = card.querySelector('.card-actions');
+      card.innerHTML = `<div class="browse-card-top"><div><span class="eyebrow">${escapeHTML(activity.hours || 'Friday')}</span><h3>${escapeHTML(activity.name)}</h3></div></div><p class="location-line">${escapeHTML(activity.location || eventLocationLabel(activity))}</p><p>${escapeHTML(activity.description || '')}</p>${activity.highlights?.length ? `<ul class="compact-list">${activity.highlights.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul>` : ''}`;
+
+      const timed = createTimedItemRows(activityEventIds(activity));
+      if (timed) card.appendChild(timed);
+
+      const actions = document.createElement('div');
+      actions.className = 'card-actions';
+      const plan = document.createElement('button');
+      plan.className = 'primary';
+      plan.type = 'button';
+      plan.textContent = '+ Plan a visit';
+      plan.title = 'Choose your own Friday start/end time for this activity';
+      plan.addEventListener('click', () => planActivity(activity));
+      actions.appendChild(plan);
       if (activity.locationId) {
         const nav = document.createElement('button');
-        nav.className = 'primary';
+        nav.className = 'secondary';
         nav.type = 'button';
         nav.textContent = 'Navigate';
         nav.addEventListener('click', () => navigateToItem(activity));
         actions.appendChild(nav);
       }
       if (activity.sourceUrl) actions.appendChild(externalLink(activity.sourceUrl, 'Official info'));
+      card.appendChild(actions);
       list.appendChild(card);
     });
   }
 
   function allGuestRecords() {
     const map = new Map();
-    guestHighlights().forEach(guest => map.set(guest.name.toLowerCase(), { ...guest, highlighted: true, eventTitles: [] }));
+    guestHighlights().forEach(guest => map.set(guest.name.toLowerCase(), { ...guest, highlighted: true, eventTitles: [], eventIds: [] }));
     events().forEach(event => {
       (event.guests || []).forEach(name => {
         const key = name.toLowerCase();
-        const existing = map.get(key) || { name, type: 'Friday panel / event', knownFor: '', fridayNote: '', highlighted: false, eventTitles: [] };
+        const existing = map.get(key) || { name, type: '', knownFor: '', fridayNote: '', highlighted: false, eventTitles: [], eventIds: [] };
         existing.eventTitles = existing.eventTitles || [];
+        existing.eventIds = existing.eventIds || [];
         if (!existing.eventTitles.includes(event.title)) existing.eventTitles.push(event.title);
-        existing.eventId = existing.eventId || event.id;
+        if (!existing.eventIds.includes(event.id)) existing.eventIds.push(event.id);
         existing.locationId = existing.locationId || event.locationId;
         existing.sourceUrl = existing.sourceUrl || event.sourceUrl;
+        existing.hasPhotoOp = existing.hasPhotoOp || event.photoOp || event.category === 'Photo Op';
         map.set(key, existing);
       });
+    });
+    map.forEach(record => {
+      if (!record.type) record.type = record.hasPhotoOp ? 'Photo ops / Friday programming' : 'Friday panel / event';
     });
     return [...map.values()].sort((a, b) => Number(b.highlighted) - Number(a.highlighted) || a.name.localeCompare(b.name));
   }
@@ -292,26 +354,28 @@
     const query = el('guestSearch').value.trim().toLowerCase();
     const all = allGuestRecords();
     const filtered = all.filter(guest => [guest.name, guest.type, guest.knownFor, guest.fridayNote, ...(guest.eventTitles || [])].join(' ').toLowerCase().includes(query));
-    el('guestResultCount').textContent = `${filtered.length} Friday guest / panelist record${filtered.length === 1 ? '' : 's'} shown`;
+    el('guestResultCount').textContent = `${filtered.length} Friday guest / panelist record${filtered.length === 1 ? '' : 's'} shown · timed photo ops appear as saveable schedule items`;
     const list = el('guestList');
     list.innerHTML = '';
     filtered.forEach(guest => {
       const card = document.createElement('article');
       card.className = 'browse-card guest-card';
-      const appearing = guest.eventTitles?.length ? `<p class="card-people"><strong>Friday programming:</strong> ${escapeHTML(guest.eventTitles.slice(0, 4).join(' · '))}${guest.eventTitles.length > 4 ? '…' : ''}</p>` : '';
-      card.innerHTML = `<div class="browse-card-top"><div>${guest.highlighted ? '<span class="eyebrow">FRIDAY HIGHLIGHT</span>' : '<span class="eyebrow">FRIDAY PROGRAMMING</span>'}<h3>${escapeHTML(guest.name)}</h3></div><span class="category-pill">${escapeHTML(guest.type || 'Guest')}</span></div>${guest.knownFor ? `<p class="location-line">${escapeHTML(guest.knownFor)}</p>` : ''}${guest.fridayNote ? `<p>${escapeHTML(guest.fridayNote)}</p>` : ''}${appearing}<div class="card-actions"></div>`;
-      const actions = card.querySelector('.card-actions');
-      if (guest.eventId) {
-        const event = events().find(e => e.id === guest.eventId);
-        if (event) {
-          const button = document.createElement('button');
-          button.className = isSaved(event.id) ? 'saved-button' : 'primary';
-          button.type = 'button';
-          button.textContent = isSaved(event.id) ? '✓ Event saved' : '+ Save event';
-          button.addEventListener('click', () => toggleSaved(event.id));
-          actions.appendChild(button);
-        }
+      const timedEvents = (guest.eventIds || []).map(id => events().find(event => event.id === id)).filter(Boolean).sort((a,b) => (a.start || '99:99').localeCompare(b.start || '99:99'));
+      const headerLabel = guest.highlighted ? 'FRIDAY GUEST' : (guest.hasPhotoOp ? 'FRIDAY PHOTO OP / PROGRAMMING' : 'FRIDAY PROGRAMMING');
+      card.innerHTML = `<div class="browse-card-top"><div><span class="eyebrow">${headerLabel}</span><h3>${escapeHTML(guest.name)}</h3></div><span class="category-pill">${escapeHTML(guest.type || 'Guest')}</span></div>${guest.knownFor ? `<p class="location-line">${escapeHTML(guest.knownFor)}</p>` : ''}${guest.fridayNote ? `<p>${escapeHTML(guest.fridayNote)}</p>` : ''}`;
+
+      if (timedEvents.length) {
+        const timed = createTimedItemRows(timedEvents.map(event => event.id));
+        if (timed) card.appendChild(timed);
+      } else {
+        const note = document.createElement('p');
+        note.className = 'data-note';
+        note.textContent = 'No exact Friday time is indexed for this guest yet. Untimed / at-table autographing is not added as a fixed schedule event.';
+        card.appendChild(note);
       }
+
+      const actions = document.createElement('div');
+      actions.className = 'card-actions';
       if (guest.locationId) {
         const nav = document.createElement('button');
         nav.className = 'secondary';
@@ -320,7 +384,10 @@
         nav.addEventListener('click', () => navigateToItem(guest));
         actions.appendChild(nav);
       }
-      if (guest.sourceUrl) actions.appendChild(externalLink(guest.sourceUrl, 'Source'));
+      if (guest.profileUrl) actions.appendChild(externalLink(guest.profileUrl, 'NYCC profile'));
+      if (guest.photoOpsUrl) actions.appendChild(externalLink(guest.photoOpsUrl, 'Photo ops'));
+      if (guest.sourceUrl && guest.sourceUrl !== guest.profileUrl && guest.sourceUrl !== guest.photoOpsUrl) actions.appendChild(externalLink(guest.sourceUrl, 'Source'));
+      card.appendChild(actions);
       list.appendChild(card);
     });
   }
@@ -629,8 +696,14 @@
     renderMap();
   }
 
-  function openEventDialog() {
+  function openEventDialog(prefill = {}) {
     el('eventForm').reset();
+    el('eventTitle').value = prefill.title || '';
+    el('eventStart').value = prefill.start || '';
+    el('eventEnd').value = prefill.end || '';
+    el('eventLocation').value = prefill.locationId || '';
+    el('eventBooth').value = prefill.booth || '';
+    el('eventNotes').value = prefill.notes || '';
     el('eventDialog').showModal();
   }
 
@@ -772,7 +845,7 @@
 
   function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=7').catch(() => { el('offlineBadge').textContent = 'Friday-first · Online only'; });
+      navigator.serviceWorker.register('./sw.js?v=8').catch(() => { el('offlineBadge').textContent = 'Friday-first · Online only'; });
     } else el('offlineBadge').textContent = 'Friday-first · Online only';
   }
 

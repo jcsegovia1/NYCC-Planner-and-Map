@@ -256,5 +256,1067 @@ window.NYCC_EVENTS = [
     locationId: 'l4_room405', category: 'After Dark', tags: ['Karaoke','After Dark'], afterDark: true,
     description: 'Late-night karaoke in North Javits to close out Friday programming.',
     guests: [], sourceUrl: 'https://www.newyorkcomiccon.com/en-us/things-to-do/after-dark/event-info.html?gtID=948877&panel-name=NYCC-After-Dark-Karaoke', sourceLabel: 'Official event page'
+  },
+  {
+      "id": "fri-ghostface-scream-30",
+      "title": "Ghostface Forever: The 30th Anniversary of Scream",
+      "date": "2026-10-09",
+      "start": "11:00",
+      "end": "12:00",
+      "locationId": "l5_empire_stage",
+      "category": "Movies & Horror",
+      "tags": [
+          "Scream",
+          "Horror",
+          "30th Anniversary"
+      ],
+      "reservation": true,
+      "description": "30th-anniversary Scream panel with Matthew Lillard, Lee Waddell, Skeet Ulrich and Jamie Kennedy.",
+      "guests": [
+          "Matthew Lillard",
+          "Lee Waddell",
+          "Skeet Ulrich",
+          "Jamie Kennedy"
+      ],
+      "sourceUrl": "https://the-line-up.com/nycc-horror-panels-2026",
+      "sourceLabel": "NYCC horror schedule roundup"
+  },
+  {
+      "id": "fri-portfolio-dropoff",
+      "title": "DC & Marvel Portfolio Drop-Off Window",
+      "date": "2026-10-09",
+      "start": "11:00",
+      "end": "17:00",
+      "locationId": "l1_cosplay",
+      "category": "Activity",
+      "tags": [
+          "Portfolio",
+          "Professional Programming"
+      ],
+      "description": "Friday portfolio drop-off window at the Cosplay Admin Table in Hall 1E near the VIP Lounge. This is drop-off only; reviews are not same-day.",
+      "guests": [],
+      "sourceUrl": "https://www.newyorkcomiccon.com/en-us/industry/professionals/professional-programming/portfolio-reviews.html",
+      "sourceLabel": "Official portfolio review info"
+  },
+  {
+      "id": "fri-photo-travis-willingham-1050",
+      "title": "Travis Willingham Photo Op",
+      "date": "2026-10-09",
+      "start": "10:50",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Travis Willingham"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/travis-willingham",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-critical-role-duo-1100",
+      "title": "Critical Role Duo Photo Op — Matthew Mercer & Travis Willingham",
+      "date": "2026-10-09",
+      "start": "11:00",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op",
+          "TeamUp"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Matthew Mercer",
+          "Travis Willingham"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/matthew-mercer",
+      "sourceLabel": "Epic Experiences",
+      "teamUp": true
+  },
+  {
+      "id": "fri-photo-matthew-mercer-1110",
+      "title": "Matthew Mercer Photo Op",
+      "date": "2026-10-09",
+      "start": "11:10",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Matthew Mercer"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/matthew-mercer",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-daredevil-team-1120",
+      "title": "Daredevil: Born Again Team Up Photo Op",
+      "date": "2026-10-09",
+      "start": "11:20",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op",
+          "TeamUp"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Wilson Bethel",
+          "Charlie Cox",
+          "Krysten Ritter",
+          "Deborah Ann Woll"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/charlie-cox",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 2",
+      "teamUp": true
+  },
+  {
+      "id": "fri-photo-charlie-cox-1130",
+      "title": "Charlie Cox Photo Op",
+      "date": "2026-10-09",
+      "start": "11:30",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Charlie Cox"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/charlie-cox",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-paul-bettany-1130",
+      "title": "Paul Bettany Photo Op",
+      "date": "2026-10-09",
+      "start": "11:30",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Paul Bettany"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/paul-bettany",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 4"
+  },
+  {
+      "id": "fri-photo-krysten-ritter-1140",
+      "title": "Krysten Ritter Photo Op",
+      "date": "2026-10-09",
+      "start": "11:40",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Krysten Ritter"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/krysten-ritter",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 2"
+  },
+  {
+      "id": "fri-photo-lena-headey-1140",
+      "title": "Lena Headey Photo Op",
+      "date": "2026-10-09",
+      "start": "11:40",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Lena Headey"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/lena-headey",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 5"
+  },
+  {
+      "id": "fri-photo-kane-hodder-1210",
+      "title": "Kane Hodder Photo Op",
+      "date": "2026-10-09",
+      "start": "12:10",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Kane Hodder"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/kane-hodder",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-clair-obscur-full-1210",
+      "title": "Clair Obscur: Expedition 33 FULL Group Photo Op",
+      "date": "2026-10-09",
+      "start": "12:10",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op",
+          "TeamUp"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Charlie Cox",
+          "Jennifer English",
+          "Ben Starr"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/ben-starr",
+      "sourceLabel": "Epic Experiences",
+      "teamUp": true
+  },
+  {
+      "id": "fri-photo-ben-starr-1220",
+      "title": "Ben Starr Photo Op",
+      "date": "2026-10-09",
+      "start": "12:20",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Ben Starr"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/ben-starr",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-baldurs-gate-duo-1220",
+      "title": "Baldur's Gate III Duo Photo Op — Jennifer English & Neil Newbon",
+      "date": "2026-10-09",
+      "start": "12:20",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op",
+          "TeamUp"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Jennifer English",
+          "Neil Newbon"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/neil-newbon",
+      "sourceLabel": "Epic Experiences",
+      "teamUp": true
+  },
+  {
+      "id": "fri-photo-sebastian-stan-1220",
+      "title": "Sebastian Stan Photo Op",
+      "date": "2026-10-09",
+      "start": "12:20",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Sebastian Stan"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/sebastian-stan",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 9"
+  },
+  {
+      "id": "fri-photo-ahsoka-duo-1230",
+      "title": "Ahsoka Duo Photo Op — Hayden Christensen & Rosario Dawson",
+      "date": "2026-10-09",
+      "start": "12:30",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op",
+          "TeamUp"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Hayden Christensen",
+          "Rosario Dawson"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/rosario-dawson",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 2",
+      "teamUp": true
+  },
+  {
+      "id": "fri-photo-jennifer-english-1230",
+      "title": "Jennifer English Photo Op",
+      "date": "2026-10-09",
+      "start": "12:30",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Jennifer English"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/jennifer-english",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-neil-newbon-1230",
+      "title": "Neil Newbon Photo Op",
+      "date": "2026-10-09",
+      "start": "12:30",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Neil Newbon"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/neil-newbon",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-matthew-lillard-1250",
+      "title": "Matthew Lillard Photo Op — 12:50 PM",
+      "date": "2026-10-09",
+      "start": "12:50",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Matthew Lillard"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/matthew-lillard",
+      "sourceLabel": "Epic Experiences",
+      "soldOut": true
+  },
+  {
+      "id": "fri-photo-mick-foley-1310",
+      "title": "Mick Foley Photo Op",
+      "date": "2026-10-09",
+      "start": "13:10",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Mick Foley"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/mick-foley",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-rosario-dawson-1320",
+      "title": "Rosario Dawson Photo Op",
+      "date": "2026-10-09",
+      "start": "13:20",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Rosario Dawson"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/rosario-dawson",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 3"
+  },
+  {
+      "id": "fri-photo-deborah-ann-woll-1340",
+      "title": "Deborah Ann Woll Photo Op",
+      "date": "2026-10-09",
+      "start": "13:40",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Deborah Ann Woll"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/deborah-ann-woll",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-hayden-christensen-1350",
+      "title": "Hayden Christensen Photo Op — 1:50 PM",
+      "date": "2026-10-09",
+      "start": "13:50",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Hayden Christensen"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/hayden-christensen",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 6"
+  },
+  {
+      "id": "fri-photo-jamie-kennedy-1350",
+      "title": "Jamie Kennedy Photo Op",
+      "date": "2026-10-09",
+      "start": "13:50",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Jamie Kennedy"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/jamie-kennedy",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-lee-waddell-1350",
+      "title": "Lee Waddell Photo Op",
+      "date": "2026-10-09",
+      "start": "13:50",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Lee Waddell"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/lee-waddell",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-scream-group-1410",
+      "title": "Scream Group Photo Op — Kennedy, Lillard, Ulrich & Waddell",
+      "date": "2026-10-09",
+      "start": "14:10",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op",
+          "TeamUp"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Jamie Kennedy",
+          "Matthew Lillard",
+          "Skeet Ulrich",
+          "Lee Waddell"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/matthew-lillard",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 2",
+      "teamUp": true
+  },
+  {
+      "id": "fri-photo-wilson-bethel-1410",
+      "title": "Wilson Bethel Photo Op",
+      "date": "2026-10-09",
+      "start": "14:10",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Wilson Bethel"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/wilson-bethel",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 2"
+  },
+  {
+      "id": "fri-photo-jason-mewes-1430",
+      "title": "Jason Mewes Photo Op",
+      "date": "2026-10-09",
+      "start": "14:30",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Jason Mewes"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/jason-mewes",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-hayden-christensen-1440",
+      "title": "Hayden Christensen Photo Op — 2:40 PM",
+      "date": "2026-10-09",
+      "start": "14:40",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Hayden Christensen"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/hayden-christensen",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 3"
+  },
+  {
+      "id": "fri-photo-matthew-lillard-1440",
+      "title": "Matthew Lillard Photo Op — Group 2",
+      "date": "2026-10-09",
+      "start": "14:40",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Matthew Lillard"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/matthew-lillard",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 2"
+  },
+  {
+      "id": "fri-photo-skeet-ulrich-1440",
+      "title": "Skeet Ulrich Photo Op",
+      "date": "2026-10-09",
+      "start": "14:40",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Skeet Ulrich"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/skeet-ulrich",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 2"
+  },
+  {
+      "id": "fri-photo-joe-lo-truglio-1450",
+      "title": "Joe Lo Truglio Photo Op",
+      "date": "2026-10-09",
+      "start": "14:50",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Joe Lo Truglio"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/joe-lo-truglio",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-melissa-fumero-1450",
+      "title": "Melissa Fumero Photo Op",
+      "date": "2026-10-09",
+      "start": "14:50",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Melissa Fumero"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/melissa-fumero",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-brooklyn-nine-nine-1510",
+      "title": "Brooklyn Nine-Nine Team Photo Op",
+      "date": "2026-10-09",
+      "start": "15:10",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op",
+          "TeamUp"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Stephanie Beatriz",
+          "Melissa Fumero",
+          "Joe Lo Truglio"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/melissa-fumero",
+      "sourceLabel": "Epic Experiences",
+      "teamUp": true
+  },
+  {
+      "id": "fri-photo-charlie-cox-1520",
+      "title": "Charlie Cox Photo Op — Group 2",
+      "date": "2026-10-09",
+      "start": "15:20",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Charlie Cox"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/charlie-cox",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 2"
+  },
+  {
+      "id": "fri-photo-melissa-benoist-1520",
+      "title": "Melissa Benoist Photo Op",
+      "date": "2026-10-09",
+      "start": "15:20",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Melissa Benoist"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/melissa-benoist",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 5"
+  },
+  {
+      "id": "fri-photo-superflash-duo-1530",
+      "title": "SuperFlash Duo Photo Op — Melissa Benoist & Grant Gustin",
+      "date": "2026-10-09",
+      "start": "15:30",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op",
+          "TeamUp"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Melissa Benoist",
+          "Grant Gustin"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/melissa-benoist",
+      "sourceLabel": "Epic Experiences",
+      "teamUp": true,
+      "soldOut": true
+  },
+  {
+      "id": "fri-photo-danielle-panabaker-1540",
+      "title": "Danielle Panabaker Photo Op",
+      "date": "2026-10-09",
+      "start": "15:40",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Danielle Panabaker"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/danielle-panabaker",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-stephanie-beatriz-1540",
+      "title": "Stephanie Beatriz Photo Op",
+      "date": "2026-10-09",
+      "start": "15:40",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Stephanie Beatriz"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/stephanie-beatriz",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-flash-team-1600",
+      "title": "The Flash Team Up Photo Op",
+      "date": "2026-10-09",
+      "start": "16:00",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op",
+          "TeamUp"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Grant Gustin",
+          "Danielle Panabaker",
+          "John Wesley Shipp",
+          "Carlos Valdes"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/carlos-valdes",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 2",
+      "teamUp": true
+  },
+  {
+      "id": "fri-photo-carlos-valdes-1610",
+      "title": "Carlos Valdes Photo Op",
+      "date": "2026-10-09",
+      "start": "16:10",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Carlos Valdes"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/carlos-valdes",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-john-wesley-shipp-1610",
+      "title": "John Wesley Shipp Photo Op",
+      "date": "2026-10-09",
+      "start": "16:10",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "John Wesley Shipp"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/john-wesley-shipp",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-nancy-allen-1620",
+      "title": "Nancy Allen Photo Op",
+      "date": "2026-10-09",
+      "start": "16:20",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Nancy Allen"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/nancy-allen",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-grant-gustin-1630",
+      "title": "Grant Gustin Photo Op",
+      "date": "2026-10-09",
+      "start": "16:30",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Grant Gustin"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/grant-gustin",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 3"
+  },
+  {
+      "id": "fri-photo-robocop-duo-1630",
+      "title": "RoboCop Duo Photo Op — Nancy Allen & Peter Weller",
+      "date": "2026-10-09",
+      "start": "16:30",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op",
+          "TeamUp"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Nancy Allen",
+          "Peter Weller"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/nancy-allen",
+      "sourceLabel": "Epic Experiences",
+      "teamUp": true
+  },
+  {
+      "id": "fri-photo-uncharted-trio-1630",
+      "title": "Uncharted Trio Photo Op",
+      "date": "2026-10-09",
+      "start": "16:30",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op",
+          "TeamUp"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Nolan North"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/nolan-north",
+      "sourceLabel": "Epic Experiences",
+      "teamUp": true
+  },
+  {
+      "id": "fri-photo-nolan-north-1640",
+      "title": "Nolan North Photo Op",
+      "date": "2026-10-09",
+      "start": "16:40",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Nolan North"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/nolan-north",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-peter-weller-1640",
+      "title": "Peter Weller Photo Op",
+      "date": "2026-10-09",
+      "start": "16:40",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Peter Weller"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/peter-weller",
+      "sourceLabel": "Epic Experiences"
+  },
+  {
+      "id": "fri-photo-matt-smith-1650",
+      "title": "Matt Smith Photo Op",
+      "date": "2026-10-09",
+      "start": "16:50",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Matt Smith"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/matt-smith",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 10"
+  },
+  {
+      "id": "fri-photo-yuri-lowenthal-1710",
+      "title": "Yuri Lowenthal Photo Op",
+      "date": "2026-10-09",
+      "start": "17:10",
+      "durationMinutes": 10,
+      "locationId": "l1_photo_ops",
+      "category": "Photo Op",
+      "tags": [
+          "Photo Op"
+      ],
+      "photoOp": true,
+      "ticketed": true,
+      "description": "Friday professional photo-op start time listed by Epic Experiences. Arrive early and verify the latest time/group before heading to Hall 1C.",
+      "guests": [
+          "Yuri Lowenthal"
+      ],
+      "sourceUrl": "https://store.epic.leapevent.tech/new-york-comic-con/2026/yuri-lowenthal",
+      "sourceLabel": "Epic Experiences",
+      "group": "Group 2"
   }
 ];

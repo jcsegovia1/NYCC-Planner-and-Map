@@ -4,6 +4,7 @@ window.NYCC_ACTIVITIES = [
     location: 'Hall 1E + South Concourse', locationId: 'l1_cosplay',
     description: 'Cosplay hub with featured makers, repair help, workshops, photo areas and official fandom meetups.',
     highlights: ['Featured cosplayers and makers in Hall 1E','Free workshops in 1E-05','Meetups and photo areas on the South Concourse'],
+    eventIds: ['fri-spiderverse-meetup','fri-dc-cosplay','fri-avatar-meetup'],
     sourceUrl: 'https://www.newyorkcomiccon.com/en-us/things-to-do/cosplay-central.html'
   },
   {
@@ -60,6 +61,7 @@ window.NYCC_ACTIVITIES = [
     location: 'Hall 1E + North Javits panel rooms', locationId: 'l4_room405',
     description: 'Friday-night programming continues after the show floor closes, including screenings, talent, costumes and karaoke.',
     highlights: ['AHS costume panel','Talent Show','After Dark Karaoke','Additional late-night programming'],
+    eventIds: ['fri-romance-after-dark','fri-ahs-costumes','fri-macross','fri-talent-show','fri-karaoke'],
     sourceUrl: 'https://www.newyorkcomiccon.com/en-us/things-to-do/after-dark.html'
   },
   {
@@ -67,6 +69,7 @@ window.NYCC_ACTIVITIES = [
     location: 'Cosplay Admin Table · Hall 1E near VIP Lounge', locationId: 'l1_cosplay',
     description: 'Artists with an NYCC badge can submit a portfolio for a chance at a review on Saturday; there are no same-day reviews.',
     highlights: ['Bring contact info in the portfolio','Do not leave original artwork','Review selection is not guaranteed'],
+    eventIds: ['fri-portfolio-dropoff'],
     sourceUrl: 'https://www.newyorkcomiccon.com/en-us/industry/professionals/professional-programming/portfolio-reviews.html'
   },
   {

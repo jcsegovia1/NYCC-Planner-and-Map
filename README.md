@@ -1,7 +1,5 @@
 # NYCC 2026 Friday Planner
 
-https://jcsegovia1.github.io/NYCC-Planner-and-Map/
-
 A static, GitHub Pages-friendly New York Comic Con planner focused on **Friday, October 9, 2026**.
 
 ## What is included
@@ -17,6 +15,22 @@ A static, GitHub Pages-friendly New York Comic Con planner focused on **Friday, 
 - Outdoor browser GPS and Google Maps / Apple Maps handoff.
 - Offline cache after the first visit.
 
+## Deploy to GitHub Pages
+
+Upload the **contents of this folder** to the root of your GitHub repository so `index.html` is visible at the repository root.
+
+Then use:
+
+**Settings → Pages → Deploy from a branch → main → / (root)**
+
+No Node, npm, server, database or API key is required.
+
+## Updating the app without stale cache
+
+This build uses `?v=7` on the main assets and `nycc2026-friday-v7` in `sw.js`.
+
+When you make a future update, bump both numbers together (for example from `v7` to `v8`). The service worker now uses **network-first** behavior for HTML/CSS/JS/data files, while map images remain cache-first, which greatly reduces the stale-cache issue from the earlier build.
+
 ## Friday data note
 
 NYCC's schedule, guest and exhibitor directories can change and some directories are dynamically rendered. This project contains a Friday-focused indexed snapshot assembled on October 6, 2026, with source links on the cards so late changes can be checked against NYCC or participating publisher/event pages. The Exhibitors tab intentionally does not claim to mirror every card in NYCC's dynamic exhibitor directory.
@@ -24,3 +38,13 @@ NYCC's schedule, guest and exhibitor directories can change and some directories
 ## Personal data
 
 Saved official event IDs and personal schedule items are stored in `localStorage` on the device/browser. The **Export My Friday** button creates a JSON backup that can be imported on another device.
+
+
+## v8 Friday guest/photo-op update
+
+- Friday professional photo-op start times are indexed as saveable schedule items and route to Hall 1C.
+- Guest cards now show every indexed timed Friday item (panels, photo ops, team-ups) with individual Save buttons.
+- Matthew Lillard is included with his official NYCC guest profile, Friday Scream panel, solo photo-op slots, and Scream Group photo op.
+- Activities can be added to My Friday: exact timed sub-events have one-tap Save buttons; open-hour activities use **Plan a visit** so you can choose the time you actually want to go.
+- At-table autograph offerings without a specific start time are shown as guest information rather than fake timed events.
+- Photo-op times/groups are subject to change; verify the linked Epic/NYCC source before the event.

@@ -389,3 +389,17 @@ dialog::backdrop { background: rgba(0,0,0,.45); }
   .data-note { background: #1b1b1d; }
   .saved-button { background: #2c1d34; color: #f7f3f9; border-color: #7d3aac; }
 }
+
+/* v8: timed guest/activity items */
+.timed-items { margin: 14px 0 2px; border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 8px; }
+.timed-items-heading { font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.timed-item-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 10px; border-radius: 12px; background: var(--surface-2); }
+.timed-item-info { min-width: 0; display: grid; grid-template-columns: 74px minmax(0,1fr); gap: 8px; align-items: baseline; }
+.timed-item-info strong { font-size: .82rem; }
+.timed-item-info span { font-size: .86rem; color: var(--text); overflow-wrap: anywhere; }
+.mini-save { min-height: 36px; padding: 6px 10px; font-size: .78rem; flex: 0 0 auto; }
+.badge.photo { border-color: #4a7890; }
+@media (max-width: 520px) {
+  .timed-item-row { align-items: flex-start; }
+  .timed-item-info { grid-template-columns: 1fr; gap: 1px; }
+}
