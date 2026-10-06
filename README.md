@@ -1,5 +1,7 @@
 # NYCC 2026 Friday Planner
 
+https://jcsegovia1.github.io/NYCC-Planner-and-Map/
+
 A static, GitHub Pages-friendly New York Comic Con planner focused on **Friday, October 9, 2026**.
 
 ## What is included
@@ -14,22 +16,6 @@ A static, GitHub Pages-friendly New York Comic Con planner focused on **Friday, 
 - Approximate indoor navigation graph with conservative North Javits / River Pavilion access handling.
 - Outdoor browser GPS and Google Maps / Apple Maps handoff.
 - Offline cache after the first visit.
-
-## Deploy to GitHub Pages
-
-Upload the **contents of this folder** to the root of your GitHub repository so `index.html` is visible at the repository root.
-
-Then use:
-
-**Settings → Pages → Deploy from a branch → main → / (root)**
-
-No Node, npm, server, database or API key is required.
-
-## Updating the app without stale cache
-
-This build uses `?v=7` on the main assets and `nycc2026-friday-v7` in `sw.js`.
-
-When you make a future update, bump both numbers together (for example from `v7` to `v8`). The service worker now uses **network-first** behavior for HTML/CSS/JS/data files, while map images remain cache-first, which greatly reduces the stale-cache issue from the earlier build.
 
 ## Friday data note
 
