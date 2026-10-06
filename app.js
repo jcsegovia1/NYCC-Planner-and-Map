@@ -257,8 +257,29 @@
 
         const body = document.createElement('div');
         body.className = 'event-card-body';
-        const photoPlanInfo = item.photoOp ? `<div class="photo-plan-note"><strong>Official session:</strong> ${escapeHTML(photoOfficialLabel({ ...item, start: item.officialStart || item.start }))}${item.planNotes ? ` · ${escapeHTML(item.planNotes)}` : ''}</div>` : '';
-        body.innerHTML = `${conflicts.has(item.id) ? '<span class="conflict-label">TIME CONFLICT</span>' : ''}<div class="event-title">${escapeHTML(item.title || 'Untitled item')}</div><div class="event-meta">${escapeHTML(eventLocationLabel(item))}</div>${item.category ? `<div class="event-notes">${escapeHTML(item.category)}</div>` : ''}${item.notes ? `<div class="event-notes">${escapeHTML(item.notes)}</div>` : ''}${photoPlanInfo}`;
+
+        const savedBadges = item.sourceType === 'official' ? flagBadges(item) : '';
+        const savedGuestLine = item.guests?.length
+          ? `<div class="saved-event-guests"><strong>Guests:</strong> ${escapeHTML(item.guests.join(', '))}</div>`
+          : '';
+        const savedDescription = item.description
+          ? `<div class="saved-event-description">${escapeHTML(item.description)}</div>`
+          : '';
+        const photoPlanInfo = item.photoOp
+          ? `<div class="photo-plan-note"><strong>Official session:</strong> ${escapeHTML(photoOfficialLabel({ ...item, start: item.officialStart || item.start }))}${item.planNotes ? ` · ${escapeHTML(item.planNotes)}` : ''}</div>`
+          : '';
+
+        body.innerHTML = `
+          ${conflicts.has(item.id) ? '<span class="conflict-label">TIME CONFLICT</span>' : ''}
+          <div class="event-title">${escapeHTML(item.title || 'Untitled item')}</div>
+          <div class="event-meta">${escapeHTML(eventLocationLabel(item))}</div>
+          ${item.category ? `<div class="event-notes saved-event-category">${escapeHTML(item.category)}</div>` : ''}
+          ${savedBadges ? `<div class="badge-row saved-event-badges">${savedBadges}</div>` : ''}
+          ${savedGuestLine}
+          ${savedDescription}
+          ${item.notes ? `<div class="event-notes">${escapeHTML(item.notes)}</div>` : ''}
+          ${photoPlanInfo}
+        `;
 
         const actions = document.createElement('div');
         actions.className = 'event-actions';
