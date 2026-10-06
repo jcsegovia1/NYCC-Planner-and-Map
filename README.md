@@ -1,68 +1,40 @@
-# NYCC 2026 Planner
+# NYCC 2026 Friday Planner
 
-https://jcsegovia1.github.io/NYCC-Planner-and-Map/
-
-A static, phone-friendly New York Comic Con 2026 schedule + Javits navigation helper. It needs no server, database, build step, package manager, API key, or command line.
+A static, GitHub Pages-friendly New York Comic Con planner focused on **Friday, October 9, 2026**.
 
 ## What is included
 
-- Official 2026 NYCC map images extracted from the supplied PDF: overview, Levels 1–5, show floor, and Artist Alley/Writers Block.
-- Indoor route graph for major mapped destinations.
-- The Level 4 routing model keeps River Pavilion separate from the North Javits panel-room area, matching the access warning on the official map.
-- Searchable Level 3 booth overlay. `data/booths.js` contains 570 booth numbers automatically indexed from the PDF text coordinates.
-- Browser GPS while the page is open, plus Google Maps and Apple Maps walking-direction handoff to Javits.
-- Personal schedule editor saved in browser `localStorage`.
-- Import/export of personal schedule JSON.
-- Optional shared schedule in `data/events.js`.
-- Offline cache after the site has been loaded once.
-- Installable web-app manifest.
+- Friday programming browser with search, categories, source links and **Save to My Friday**.
+- Friday guest discovery, including highlighted autograph/photo guests and panelists extracted from indexed Friday programming.
+- Friday activities and interests: Cosplay Central, Family HQ, Gaming Side Quest, Pride Lounge, Artist Alley/Writers Block, After Dark and more.
+- Friday-relevant exhibitors/activations with show-floor booth lookup where coordinates are available.
+- Personal Friday items stored locally in the browser.
+- Conflict highlighting for overlapping saved items.
+- Official 2026 NYCC floor-map images supplied for this project.
+- Approximate indoor navigation graph with conservative North Javits / River Pavilion access handling.
+- Outdoor browser GPS and Google Maps / Apple Maps handoff.
+- Offline cache after the first visit.
 
-## Add shared schedule events
+## Deploy to GitHub Pages
 
-Edit `data/events.js` before uploading. Example:
+Upload the **contents of this folder** to the root of your GitHub repository so `index.html` is visible at the repository root.
 
-```js
-window.NYCC_EVENTS = [
-  {
-    id: 'panel-1',
-    title: 'My panel',
-    date: '2026-10-08',
-    start: '13:30',
-    end: '14:30',
-    locationId: 'l4_room405',
-    notes: 'Line up 30 minutes early.'
-  },
-  {
-    id: 'booth-stop',
-    title: 'Visit a booth',
-    date: '2026-10-08',
-    start: '15:00',
-    booth: '3425'
-  }
-];
-```
+Then use:
 
-Mapped `locationId` values are listed in `data/locations.js`. You can also add events directly in the app; those are private to the browser/device.
+**Settings → Pages → Deploy from a branch → main → / (root)**
 
-## Indoor positioning limitation
+No Node, npm, server, database or API key is required.
 
-Normal phone GPS is not accurate enough to reliably determine a room, hallway, or floor inside Javits. This app therefore uses live GPS for approaching the venue and a manually selected indoor landmark for in-building routing. Indoor marker positions and walking-time weights are approximate; posted signs and event staff should take priority.
+## Updating the app without stale cache
 
-## Privacy
+This build uses `?v=7` on the main assets and `nycc2026-friday-v7` in `sw.js`.
 
-The site has no analytics and no backend. Location is read locally in the browser. Coordinates are included in a Google Maps or Apple Maps URL only if the user taps the corresponding directions link.
+When you make a future update, bump both numbers together (for example from `v7` to `v8`). The service worker now uses **network-first** behavior for HTML/CSS/JS/data files, while map images remain cache-first, which greatly reduces the stale-cache issue from the earlier build.
 
-## Map rights
+## Friday data note
 
-The included NYCC floor-map images came from the official 2026 map PDF supplied for this project. NYCC/ReedPop/Javits names, logos, artwork, and map graphics may be protected by their respective owners. Before publishing a public mirror of the map artwork, check the applicable event/site terms or obtain permission if required. If you do not want to redistribute the images, replace the files in `assets/maps/` with maps you are allowed to publish while keeping the same filenames.
+NYCC's schedule, guest and exhibitor directories can change and some directories are dynamically rendered. This project contains a Friday-focused indexed snapshot assembled on October 6, 2026, with source links on the cards so late changes can be checked against NYCC or participating publisher/event pages. The Exhibitors tab intentionally does not claim to mirror every card in NYCC's dynamic exhibitor directory.
 
-## Files you will edit most often
+## Personal data
 
-- `data/events.js` — shared/preloaded schedule.
-- `data/locations.js` — mapped destinations, marker positions, and indoor route graph.
-- `styles.css` — appearance.
-- `app.js` — app behavior.
-
-## Test locally
-
-Opening `index.html` directly will show most of the interface, but browser security rules may prevent service workers and geolocation on a `file://` URL. GitHub Pages uses HTTPS, which is the intended environment.
+Saved official event IDs and personal schedule items are stored in `localStorage` on the device/browser. The **Export My Friday** button creates a JSON backup that can be imported on another device.

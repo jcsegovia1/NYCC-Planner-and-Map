@@ -4,56 +4,133 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#171717">
-  <meta name="description" content="A lightweight NYCC 2026 schedule and indoor navigation helper using the official floor maps.">
-  <title>NYCC 2026 Planner</title>
+  <meta name="description" content="Friday-first NYCC 2026 planner with programming, guests, activities, exhibitors, maps and indoor navigation.">
+  <title>NYCC 2026 Friday Planner</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/icon-192.png">
   <link rel="apple-touch-icon" href="assets/icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=2">
+  <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
   <header class="topbar">
     <div>
-      <div class="eyebrow">OCT 8–11 · JAVITS CENTER</div>
-      <h1>NYCC 2026 Planner</h1>
+      <div class="eyebrow">FRIDAY · OCT 9 · JAVITS CENTER</div>
+      <h1>NYCC 2026 Friday Planner</h1>
     </div>
-    <div id="offlineBadge" class="status-pill" title="The app caches maps after the first visit">Offline-ready</div>
+    <div id="offlineBadge" class="status-pill" title="Maps and app files are cached after the first visit">Friday-first · Offline-ready</div>
   </header>
 
   <nav class="tabs" aria-label="App sections">
-    <button class="tab active" data-tab="schedule" aria-selected="true">Schedule</button>
+    <button class="tab active" data-tab="myfriday" aria-selected="true">My Friday</button>
+    <button class="tab" data-tab="browse" aria-selected="false">Schedule</button>
+    <button class="tab" data-tab="activities" aria-selected="false">Activities</button>
+    <button class="tab" data-tab="guests" aria-selected="false">Guests</button>
+    <button class="tab" data-tab="exhibitors" aria-selected="false">Exhibitors</button>
     <button class="tab" data-tab="navigate" aria-selected="false">Navigate</button>
     <button class="tab" data-tab="map" aria-selected="false">Maps</button>
     <button class="tab" data-tab="about" aria-selected="false">About</button>
   </nav>
 
   <main>
-    <section id="tab-schedule" class="panel active" aria-labelledby="scheduleHeading">
+    <section id="tab-myfriday" class="panel active" aria-labelledby="myFridayHeading">
       <div class="section-head">
         <div>
-          <h2 id="scheduleHeading">My schedule</h2>
-          <p>Tap a location to route there. Events you add here stay on this device.</p>
+          <h2 id="myFridayHeading">My Friday</h2>
+          <p>Save official Friday programming, then mix in your own signings, meals and meetups. Your plan stays on this device.</p>
         </div>
-        <button id="addEventBtn" class="primary">+ Add event</button>
+        <button id="addEventBtn" class="primary">+ Personal item</button>
       </div>
 
-      <div id="dayTabs" class="day-tabs" role="tablist" aria-label="Convention day"></div>
-      <div id="scheduleList" class="schedule-list" aria-live="polite"></div>
+      <div class="quick-stats" aria-label="Friday planner summary">
+        <div><strong id="savedCount">0</strong><span>saved items</span></div>
+        <div><strong id="conflictCount">0</strong><span>time conflicts</span></div>
+        <div><strong>10 AM</strong><span>show floor opens</span></div>
+        <div><strong>11 PM</strong><span>Friday panels end</span></div>
+      </div>
+
+      <div id="myFridayList" class="schedule-list" aria-live="polite"></div>
 
       <div class="utility-row">
-        <button id="exportBtn" class="secondary">Export my events</button>
+        <button id="browseFridayBtn" class="primary">Browse Friday schedule</button>
+        <button id="exportBtn" class="secondary">Export my Friday</button>
         <label class="file-button secondary">
-          Import events
+          Import plan
           <input id="importInput" type="file" accept="application/json,.json">
         </label>
       </div>
+    </section>
+
+    <section id="tab-browse" class="panel" aria-labelledby="browseHeading">
+      <div class="section-head">
+        <div>
+          <h2 id="browseHeading">Friday schedule</h2>
+          <p>Friday-only programming indexed from NYCC and participating publishers. Save anything you want to see to My Friday.</p>
+        </div>
+        <a class="secondary link-button" href="https://www.newyorkcomiccon.com/en-us/schedule/friday/full-schedule.html" target="_blank" rel="noopener">Official Friday page ↗</a>
+      </div>
+
+      <div class="filter-bar">
+        <label class="search-field">Search Friday
+          <input id="eventSearch" type="search" placeholder="Avatar, Marvel, horror, guest…">
+        </label>
+        <label>Category
+          <select id="eventCategory"><option value="">All categories</option></select>
+        </label>
+      </div>
+      <p id="eventResultCount" class="result-count"></p>
+      <div id="eventBrowseList" class="browse-grid"></div>
+    </section>
+
+    <section id="tab-activities" class="panel" aria-labelledby="activitiesHeading">
+      <div class="section-head">
+        <div>
+          <h2 id="activitiesHeading">Activities & interests</h2>
+          <p>Friday activities beyond the panel rooms: cosplay, gaming, Family HQ, Pride Lounge, Artist Alley, After Dark and more.</p>
+        </div>
+        <a class="secondary link-button" href="https://www.newyorkcomiccon.com/en-us/activities-and-interests.html" target="_blank" rel="noopener">Official activities ↗</a>
+      </div>
+      <div id="activitiesList" class="browse-grid"></div>
+    </section>
+
+    <section id="tab-guests" class="panel" aria-labelledby="guestsHeading">
+      <div class="section-head">
+        <div>
+          <h2 id="guestsHeading">Friday guests</h2>
+          <p>Friday-highlighted autograph/photo guests plus panelists pulled from the Friday programming indexed in this planner.</p>
+        </div>
+        <a class="secondary link-button" href="https://www.newyorkcomiccon.com/en-us/guests.html" target="_blank" rel="noopener">Official guest directory ↗</a>
+      </div>
+      <div class="filter-bar single-search">
+        <label class="search-field">Find a guest
+          <input id="guestSearch" type="search" placeholder="Matt Smith, John Cusack, Sarah Paulson…">
+        </label>
+      </div>
+      <p id="guestResultCount" class="result-count"></p>
+      <div id="guestList" class="browse-grid"></div>
+    </section>
+
+    <section id="tab-exhibitors" class="panel" aria-labelledby="exhibitorsHeading">
+      <div class="section-head">
+        <div>
+          <h2 id="exhibitorsHeading">Exhibitors & artists</h2>
+          <p>Friday-relevant exhibitors, activations and Artist Alley entries we can connect to the official floor maps. Search any indexed booth directly.</p>
+        </div>
+        <a class="secondary link-button" href="https://www.newyorkcomiccon.com/en-us/exhibitors-and-artists/exhibitors.html" target="_blank" rel="noopener">Full official directory ↗</a>
+      </div>
+      <div class="filter-bar single-search">
+        <label class="search-field">Search exhibitors / artists
+          <input id="exhibitorSearch" type="search" placeholder="Marvel, DC, WEBTOON, 4457…">
+        </label>
+      </div>
+      <p class="data-note">The NYCC exhibitor/Artist Alley directories are dynamically loaded, so this tab contains the Friday-relevant entries and mapped booths indexed in this build rather than claiming to mirror every directory card.</p>
+      <div id="exhibitorList" class="browse-grid"></div>
     </section>
 
     <section id="tab-navigate" class="panel" aria-labelledby="navigateHeading">
       <div class="section-head">
         <div>
           <h2 id="navigateHeading">Navigate</h2>
-          <p>GPS works outside. Indoors, set the closest landmark and the app routes between mapped areas.</p>
+          <p>GPS works outside. Indoors, choose the closest landmark and this planner routes between mapped Javits areas.</p>
         </div>
       </div>
 
@@ -86,7 +163,7 @@
             <button id="routeBtn" class="primary">Show indoor route</button>
             <button id="swapBtn" class="secondary">Swap</button>
           </div>
-          <p class="small-note">Indoor GPS usually cannot identify your floor or hallway reliably, so this uses a known landmark as your start point.</p>
+          <p class="small-note">Indoor GPS usually cannot identify your floor or hallway reliably, so routing starts from a landmark you select.</p>
         </article>
       </div>
 
@@ -107,7 +184,7 @@
       <div class="section-head map-head">
         <div>
           <h2 id="mapHeading">Official 2026 maps</h2>
-          <p>Markers and route lines are approximate overlays on the official floor-map images.</p>
+          <p>Markers and route lines are approximate overlays on the official NYCC floor-map images you supplied.</p>
         </div>
         <select id="mapSelect" aria-label="Choose map"></select>
       </div>
@@ -116,10 +193,10 @@
         <form id="boothSearchForm" class="booth-search">
           <label for="boothSearch">Find a show-floor booth</label>
           <div class="inline-input">
-            <input id="boothSearch" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="e.g. 3425">
+            <input id="boothSearch" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="e.g. 4457">
             <button class="primary" type="submit">Find</button>
           </div>
-          <span id="boothSearchMsg" class="small-note" aria-live="polite">570 booth labels are indexed from the supplied map.</span>
+          <span id="boothSearchMsg" class="small-note" aria-live="polite">570 booth labels are indexed from the supplied Level 3 map.</span>
         </form>
       </div>
 
@@ -132,23 +209,31 @@
     </section>
 
     <section id="tab-about" class="panel" aria-labelledby="aboutHeading">
-      <h2 id="aboutHeading">How this works</h2>
+      <h2 id="aboutHeading">About this Friday build</h2>
       <div class="about-grid">
         <article class="card">
-          <h3>No server required</h3>
-          <p>This is a static site. Drop the files into a GitHub repository, enable GitHub Pages, and it works over HTTPS with no API key or database.</p>
+          <h3>Friday-first</h3>
+          <p>This build is deliberately centered on Friday, October 9, 2026. Thursday, Saturday and Sunday programming is not mixed into your planner.</p>
         </article>
         <article class="card">
-          <h3>Outdoor location</h3>
-          <p>The browser Geolocation API can track your position while this page is open. The app calculates your distance to Javits and can hand off walking directions to your maps app.</p>
+          <h3>Source links included</h3>
+          <p>Programming cards link back to NYCC or participating publisher/event pages so you can verify late changes, reservations and access rules.</p>
         </article>
         <article class="card">
-          <h3>Indoor routing</h3>
-          <p>The indoor route is a small graph based on the official map’s visible connections and access notes. Pick your nearest landmark, then choose a destination.</p>
+          <h3>Outdoor + indoor navigation</h3>
+          <p>Browser GPS can get you to Javits. Inside, the app uses the official floor maps and a conservative routing graph, including North Javits / River Pavilion access rules.</p>
+        </article>
+        <article class="card">
+          <h3>Local plan</h3>
+          <p>Your saved official events and personal items are stored in your browser. No login, database or API key is required.</p>
         </article>
         <article class="card warning-card">
-          <h3>Important limitation</h3>
-          <p>This is a personal navigation helper, not an official NYCC app. Indoor marker positions and walking-time estimates are approximate. Follow posted signs and staff instructions.</p>
+          <h3>Schedule can change</h3>
+          <p>This is a personal helper, not the official NYCC app. Times, guests, rooms, reservations and exhibitor details can change. Check the linked official source and posted signage.</p>
+        </article>
+        <article class="card">
+          <h3>Data snapshot</h3>
+          <p>Friday programming and discovery data in this build was assembled October 6, 2026. Dynamic NYCC directory pages are linked where their full card data is not exposed in a static crawl.</p>
         </article>
       </div>
     </section>
@@ -158,24 +243,16 @@
     <form id="eventForm" method="dialog">
       <div class="dialog-head">
         <div>
-          <span class="eyebrow">PERSONAL EVENT</span>
-          <h2>Add to my schedule</h2>
+          <span class="eyebrow">FRIDAY · PERSONAL ITEM</span>
+          <h2>Add to My Friday</h2>
         </div>
         <button id="closeDialogBtn" type="button" class="icon-button" aria-label="Close">×</button>
       </div>
 
       <label for="eventTitle">Title</label>
-      <input id="eventTitle" required placeholder="Panel, signing, meetup…">
+      <input id="eventTitle" required placeholder="Signing, meal, meetup…">
 
-      <div class="form-grid">
-        <label>Date
-          <select id="eventDate" required>
-            <option value="2026-10-08">Thu, Oct 8</option>
-            <option value="2026-10-09">Fri, Oct 9</option>
-            <option value="2026-10-10">Sat, Oct 10</option>
-            <option value="2026-10-11">Sun, Oct 11</option>
-          </select>
-        </label>
+      <div class="form-grid friday-form-grid">
         <label>Start
           <input id="eventStart" type="time" required>
         </label>
@@ -188,21 +265,24 @@
       <select id="eventLocation"></select>
 
       <label for="eventBooth">Or show-floor booth number</label>
-      <input id="eventBooth" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="Optional, e.g. 3425">
+      <input id="eventBooth" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="Optional, e.g. 4457">
 
       <label for="eventNotes">Notes</label>
-      <textarea id="eventNotes" rows="3" placeholder="Line up early, reservation info, etc."></textarea>
+      <textarea id="eventNotes" rows="3" placeholder="Reservation, line-up time, who you’re meeting…"></textarea>
 
       <div class="dialog-actions">
         <button id="cancelEventBtn" type="button" class="secondary">Cancel</button>
-        <button type="submit" class="primary">Save event</button>
+        <button type="submit" class="primary">Save item</button>
       </div>
     </form>
   </dialog>
 
-  <script src="data/locations.js"></script>
-  <script src="data/booths.js"></script>
-  <script src="data/events.js"></script>
-  <script src="app.js?v=2"></script>
+  <script src="data/locations.js?v=7"></script>
+  <script src="data/booths.js?v=7"></script>
+  <script src="data/events.js?v=7"></script>
+  <script src="data/activities.js?v=7"></script>
+  <script src="data/guests.js?v=7"></script>
+  <script src="data/exhibitors.js?v=7"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>

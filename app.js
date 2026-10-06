@@ -1,25 +1,19 @@
 (() => {
   'use strict';
 
-  const DAYS = [
-    { date: '2026-10-08', short: 'Thu', label: 'Thursday', day: 'Oct 8' },
-    { date: '2026-10-09', short: 'Fri', label: 'Friday', day: 'Oct 9' },
-    { date: '2026-10-10', short: 'Sat', label: 'Saturday', day: 'Oct 10' },
-    { date: '2026-10-11', short: 'Sun', label: 'Sunday', day: 'Oct 11' }
-  ];
-
+  const FRIDAY = '2026-10-09';
   const JAVITS = {
-    name: 'Jacob K. Javits Convention Center',
     address: '429 11th Avenue, New York, NY 10001',
     lat: 40.75755,
     lng: -74.00250
   };
 
   const STORAGE_EVENTS = 'nycc2026-personal-events-v1';
+  const STORAGE_SAVED = 'nycc2026-friday-saved-v1';
   const STORAGE_START = 'nycc2026-current-location-v1';
 
-  let selectedDay = pickInitialDay();
-  let personalEvents = loadJSON(STORAGE_EVENTS, []);
+  let personalEvents = loadArray(STORAGE_EVENTS).filter(e => !e.date || e.date === FRIDAY).map(e => ({ ...e, date: FRIDAY }));
+  let savedOfficialIds = loadArray(STORAGE_SAVED).filter(id => typeof id === 'string');
   let currentLocationId = localStorage.getItem(STORAGE_START) || 'l1_hall_center';
   let destinationId = 'l1_main_stage';
   let activeRoute = null;
@@ -29,145 +23,358 @@
   let latestPosition = null;
 
   const el = id => document.getElementById(id);
+  const events = () => Array.isArray(window.NYCC_EVENTS) ? window.NYCC_EVENTS.filter(e => e.date === FRIDAY) : [];
+  const activities = () => Array.isArray(window.NYCC_ACTIVITIES) ? window.NYCC_ACTIVITIES : [];
+  const guestHighlights = () => Array.isArray(window.NYCC_GUEST_HIGHLIGHTS) ? window.NYCC_GUEST_HIGHLIGHTS : [];
+  const exhibitors = () => Array.isArray(window.NYCC_EXHIBITORS) ? window.NYCC_EXHIBITORS : [];
 
-  function pickInitialDay() {
-    const today = new Date().toISOString().slice(0, 10);
-    return DAYS.some(d => d.date === today) ? today : DAYS[0].date;
-  }
-
-  function loadJSON(key, fallback) {
+  function loadArray(key) {
     try {
       const value = JSON.parse(localStorage.getItem(key));
-      return Array.isArray(fallback) ? (Array.isArray(value) ? value : fallback) : (value ?? fallback);
+      return Array.isArray(value) ? value : [];
     } catch (_) {
-      return fallback;
+      return [];
     }
   }
 
-  function savePersonalEvents() {
+  function savePlan() {
     localStorage.setItem(STORAGE_EVENTS, JSON.stringify(personalEvents));
+    localStorage.setItem(STORAGE_SAVED, JSON.stringify(savedOfficialIds));
   }
 
-  function allEvents() {
-    return [
-      ...(Array.isArray(window.NYCC_EVENTS) ? window.NYCC_EVENTS.map(e => ({ ...e, source: 'site' })) : []),
-      ...personalEvents.map(e => ({ ...e, source: 'personal' }))
-    ];
+  function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
   }
 
   function formatTime(time) {
-    if (!time) return '';
-    const [h, m] = time.split(':').map(Number);
+    if (!time) return 'Time TBA';
+    const [h, m] = String(time).split(':').map(Number);
     if (!Number.isFinite(h) || !Number.isFinite(m)) return time;
-    const suffix = h >= 12 ? 'PM' : 'AM';
-    const hour = h % 12 || 12;
-    return `${hour}:${String(m).padStart(2, '0')} ${suffix}`;
+    return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
   }
 
-  function eventLocationLabel(event) {
-    if (event.booth) return `Booth ${event.booth} · Level 3 Show Floor`;
-    if (event.locationId && window.NYCC_LOCATIONS[event.locationId]) {
-      const loc = window.NYCC_LOCATIONS[event.locationId];
+  function timeRange(item) {
+    return item.end ? `${formatTime(item.start)}–${formatTime(item.end)}` : formatTime(item.start);
+  }
+
+  function minutes(time) {
+    if (!time || !/^\d{2}:\d{2}$/.test(time)) return null;
+    const [h, m] = time.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  function itemEndMinutes(item) {
+    const start = minutes(item.start);
+    if (start === null) return null;
+    return minutes(item.end) ?? (start + 45);
+  }
+
+  function eventLocationLabel(item) {
+    if (item.booth) return `Booth ${item.booth} · Level 3 Show Floor`;
+    if (item.locationId && window.NYCC_LOCATIONS?.[item.locationId]) {
+      const loc = window.NYCC_LOCATIONS[item.locationId];
       return `${loc.name} · ${loc.floor}`;
     }
-    return event.location || 'Location not set';
+    return item.location || 'Location not listed';
   }
 
-  function renderDayTabs() {
-    const wrap = el('dayTabs');
-    wrap.innerHTML = '';
-    DAYS.forEach(day => {
-      const button = document.createElement('button');
-      button.className = `day-tab${selectedDay === day.date ? ' active' : ''}`;
-      button.type = 'button';
-      button.role = 'tab';
-      button.setAttribute('aria-selected', selectedDay === day.date ? 'true' : 'false');
-      button.innerHTML = `<strong>${day.short}</strong><span>${day.day}</span>`;
-      button.addEventListener('click', () => {
-        selectedDay = day.date;
-        renderDayTabs();
-        renderSchedule();
-      });
-      wrap.appendChild(button);
-    });
+  function flagBadges(item) {
+    const labels = [];
+    if (item.reservation) labels.push(['Reservation', 'important']);
+    if (item.ticketed) labels.push(['Ticketed', 'important']);
+    if (item.afterDark) labels.push(['After Dark', 'late']);
+    (item.tags || []).slice(0, 3).forEach(tag => labels.push([tag, '']));
+    return labels.map(([label, cls]) => `<span class="badge ${cls}">${escapeHTML(label)}</span>`).join('');
   }
 
-  function renderSchedule() {
-    const list = el('scheduleList');
+  function isSaved(id) {
+    return savedOfficialIds.includes(id);
+  }
+
+  function toggleSaved(id) {
+    if (isSaved(id)) savedOfficialIds = savedOfficialIds.filter(value => value !== id);
+    else savedOfficialIds.push(id);
+    savePlan();
+    renderMyFriday();
+    renderBrowse();
+  }
+
+  function myFridayItems() {
+    const official = events().filter(event => isSaved(event.id)).map(event => ({ ...event, sourceType: 'official' }));
+    const personal = personalEvents.map(event => ({ ...event, sourceType: 'personal' }));
+    return [...official, ...personal].sort((a, b) => (a.start || '99:99').localeCompare(b.start || '99:99') || (a.title || '').localeCompare(b.title || ''));
+  }
+
+  function conflictInfo(items) {
+    const ids = new Set();
+    let pairs = 0;
+    for (let i = 0; i < items.length; i += 1) {
+      const aStart = minutes(items[i].start);
+      const aEnd = itemEndMinutes(items[i]);
+      if (aStart === null || aEnd === null) continue;
+      for (let j = i + 1; j < items.length; j += 1) {
+        const bStart = minutes(items[j].start);
+        const bEnd = itemEndMinutes(items[j]);
+        if (bStart === null || bEnd === null) continue;
+        if (Math.max(aStart, bStart) < Math.min(aEnd, bEnd)) {
+          ids.add(items[i].id);
+          ids.add(items[j].id);
+          pairs += 1;
+        }
+      }
+    }
+    return { ids, pairs };
+  }
+
+  function renderMyFriday() {
+    const list = el('myFridayList');
+    const items = myFridayItems();
+    const conflict = conflictInfo(items);
+    const conflicts = conflict.ids;
+    el('savedCount').textContent = String(items.length);
+    el('conflictCount').textContent = String(conflict.pairs);
     list.innerHTML = '';
-    const events = allEvents()
-      .filter(e => e.date === selectedDay)
-      .sort((a, b) => (a.start || '').localeCompare(b.start || ''));
 
-    if (!events.length) {
-      const empty = document.createElement('div');
-      empty.className = 'empty-state';
-      empty.innerHTML = `<h3>No events yet</h3><p>Add events on your phone, or edit <code>data/events.js</code> before uploading the site to GitHub.</p><button class="primary" type="button">Add my first event</button>`;
-      empty.querySelector('button').addEventListener('click', openEventDialog);
-      list.appendChild(empty);
+    if (!items.length) {
+      list.innerHTML = `<div class="empty-state"><h3>Your Friday is open</h3><p>Browse the Friday schedule and save panels, screenings and meetups. You can also add personal signings, meals or booth stops.</p><button id="emptyBrowseBtn" class="primary" type="button">Browse Friday events</button></div>`;
+      el('emptyBrowseBtn').addEventListener('click', () => switchTab('browse'));
       return;
     }
 
-    events.forEach(event => {
+    items.forEach(item => {
       const card = document.createElement('article');
-      card.className = 'event-card';
+      card.className = `event-card${conflicts.has(item.id) ? ' has-conflict' : ''}`;
 
       const time = document.createElement('div');
       time.className = 'event-time';
-      time.textContent = formatTime(event.start);
-      if (event.end) {
+      time.textContent = formatTime(item.start);
+      if (item.end) {
         const end = document.createElement('span');
-        end.textContent = `to ${formatTime(event.end)}`;
+        end.textContent = `to ${formatTime(item.end)}`;
         time.appendChild(end);
       }
 
       const body = document.createElement('div');
-      const title = document.createElement('div');
-      title.className = 'event-title';
-      title.textContent = event.title || 'Untitled event';
-      const meta = document.createElement('div');
-      meta.className = 'event-meta';
-      meta.textContent = eventLocationLabel(event);
-      body.append(title, meta);
-      if (event.notes) {
-        const notes = document.createElement('div');
-        notes.className = 'event-notes';
-        notes.textContent = event.notes;
-        body.appendChild(notes);
-      }
+      body.className = 'event-card-body';
+      body.innerHTML = `${conflicts.has(item.id) ? '<span class="conflict-label">TIME CONFLICT</span>' : ''}<div class="event-title">${escapeHTML(item.title || 'Untitled item')}</div><div class="event-meta">${escapeHTML(eventLocationLabel(item))}</div>${item.category ? `<div class="event-notes">${escapeHTML(item.category)}</div>` : ''}${item.notes ? `<div class="event-notes">${escapeHTML(item.notes)}</div>` : ''}`;
 
       const actions = document.createElement('div');
       actions.className = 'event-actions';
-      const nav = document.createElement('button');
-      nav.className = 'primary';
-      nav.type = 'button';
-      nav.textContent = 'Navigate';
-      nav.disabled = !event.locationId && !event.booth;
-      nav.addEventListener('click', () => navigateToEvent(event));
-      actions.appendChild(nav);
-
-      if (event.source === 'personal') {
-        const remove = document.createElement('button');
-        remove.className = 'secondary';
-        remove.type = 'button';
-        remove.textContent = 'Delete';
-        remove.addEventListener('click', () => {
-          personalEvents = personalEvents.filter(e => e.id !== event.id);
-          savePersonalEvents();
-          renderSchedule();
-          toast('Event deleted');
-        });
-        actions.appendChild(remove);
+      if (item.locationId || item.booth) {
+        const nav = document.createElement('button');
+        nav.className = 'primary';
+        nav.type = 'button';
+        nav.textContent = 'Navigate';
+        nav.addEventListener('click', () => navigateToItem(item));
+        actions.appendChild(nav);
       }
-
+      if (item.sourceUrl) {
+        const source = document.createElement('a');
+        source.className = 'secondary link-button small-action';
+        source.target = '_blank';
+        source.rel = 'noopener';
+        source.href = item.sourceUrl;
+        source.textContent = 'Details ↗';
+        actions.appendChild(source);
+      }
+      const remove = document.createElement('button');
+      remove.className = 'secondary';
+      remove.type = 'button';
+      remove.textContent = 'Remove';
+      remove.addEventListener('click', () => {
+        if (item.sourceType === 'official') savedOfficialIds = savedOfficialIds.filter(id => id !== item.id);
+        else personalEvents = personalEvents.filter(event => event.id !== item.id);
+        savePlan();
+        renderMyFriday();
+        renderBrowse();
+        toast('Removed from My Friday');
+      });
+      actions.appendChild(remove);
       card.append(time, body, actions);
       list.appendChild(card);
     });
   }
 
+  function populateEventCategories() {
+    const select = el('eventCategory');
+    const categories = [...new Set(events().map(e => e.category).filter(Boolean))].sort();
+    categories.forEach(category => {
+      const option = document.createElement('option');
+      option.value = category;
+      option.textContent = category;
+      select.appendChild(option);
+    });
+  }
+
+  function renderBrowse() {
+    const query = el('eventSearch').value.trim().toLowerCase();
+    const category = el('eventCategory').value;
+    const filtered = events().filter(event => {
+      const haystack = [event.title, event.description, event.category, ...(event.tags || []), ...(event.guests || []), eventLocationLabel(event)].join(' ').toLowerCase();
+      return (!query || haystack.includes(query)) && (!category || event.category === category);
+    }).sort((a, b) => (a.start || '99:99').localeCompare(b.start || '99:99'));
+
+    el('eventResultCount').textContent = `${filtered.length} Friday event${filtered.length === 1 ? '' : 's'} shown · ${events().length} indexed in this build`;
+    const list = el('eventBrowseList');
+    list.innerHTML = '';
+
+    filtered.forEach(event => {
+      const card = document.createElement('article');
+      card.className = 'browse-card event-browse-card';
+      const guestLine = event.guests?.length ? `<p class="card-people"><strong>Guests:</strong> ${escapeHTML(event.guests.join(', '))}</p>` : '';
+      card.innerHTML = `
+        <div class="browse-card-top"><div><span class="eyebrow">${escapeHTML(timeRange(event))}</span><h3>${escapeHTML(event.title)}</h3></div><span class="category-pill">${escapeHTML(event.category || 'Programming')}</span></div>
+        <p class="location-line">${escapeHTML(eventLocationLabel(event))}</p>
+        <div class="badge-row">${flagBadges(event)}</div>
+        <p>${escapeHTML(event.description || '')}</p>
+        ${guestLine}
+        <div class="card-actions"></div>`;
+      const actions = card.querySelector('.card-actions');
+      const save = document.createElement('button');
+      save.className = isSaved(event.id) ? 'saved-button' : 'primary';
+      save.type = 'button';
+      save.textContent = isSaved(event.id) ? '✓ Saved' : '+ My Friday';
+      save.addEventListener('click', () => toggleSaved(event.id));
+      actions.appendChild(save);
+      if (event.locationId || event.booth) {
+        const nav = document.createElement('button');
+        nav.className = 'secondary';
+        nav.type = 'button';
+        nav.textContent = 'Navigate';
+        nav.addEventListener('click', () => navigateToItem(event));
+        actions.appendChild(nav);
+      }
+      if (event.sourceUrl) actions.appendChild(externalLink(event.sourceUrl, event.sourceLabel || 'Source'));
+      list.appendChild(card);
+    });
+  }
+
+  function renderActivities() {
+    const list = el('activitiesList');
+    list.innerHTML = '';
+    activities().forEach(activity => {
+      const card = document.createElement('article');
+      card.className = 'browse-card';
+      card.innerHTML = `<div class="browse-card-top"><div><span class="eyebrow">${escapeHTML(activity.hours || 'Friday')}</span><h3>${escapeHTML(activity.name)}</h3></div></div><p class="location-line">${escapeHTML(activity.location || eventLocationLabel(activity))}</p><p>${escapeHTML(activity.description || '')}</p>${activity.highlights?.length ? `<ul class="compact-list">${activity.highlights.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul>` : ''}<div class="card-actions"></div>`;
+      const actions = card.querySelector('.card-actions');
+      if (activity.locationId) {
+        const nav = document.createElement('button');
+        nav.className = 'primary';
+        nav.type = 'button';
+        nav.textContent = 'Navigate';
+        nav.addEventListener('click', () => navigateToItem(activity));
+        actions.appendChild(nav);
+      }
+      if (activity.sourceUrl) actions.appendChild(externalLink(activity.sourceUrl, 'Official info'));
+      list.appendChild(card);
+    });
+  }
+
+  function allGuestRecords() {
+    const map = new Map();
+    guestHighlights().forEach(guest => map.set(guest.name.toLowerCase(), { ...guest, highlighted: true, eventTitles: [] }));
+    events().forEach(event => {
+      (event.guests || []).forEach(name => {
+        const key = name.toLowerCase();
+        const existing = map.get(key) || { name, type: 'Friday panel / event', knownFor: '', fridayNote: '', highlighted: false, eventTitles: [] };
+        existing.eventTitles = existing.eventTitles || [];
+        if (!existing.eventTitles.includes(event.title)) existing.eventTitles.push(event.title);
+        existing.eventId = existing.eventId || event.id;
+        existing.locationId = existing.locationId || event.locationId;
+        existing.sourceUrl = existing.sourceUrl || event.sourceUrl;
+        map.set(key, existing);
+      });
+    });
+    return [...map.values()].sort((a, b) => Number(b.highlighted) - Number(a.highlighted) || a.name.localeCompare(b.name));
+  }
+
+  function renderGuests() {
+    const query = el('guestSearch').value.trim().toLowerCase();
+    const all = allGuestRecords();
+    const filtered = all.filter(guest => [guest.name, guest.type, guest.knownFor, guest.fridayNote, ...(guest.eventTitles || [])].join(' ').toLowerCase().includes(query));
+    el('guestResultCount').textContent = `${filtered.length} Friday guest / panelist record${filtered.length === 1 ? '' : 's'} shown`;
+    const list = el('guestList');
+    list.innerHTML = '';
+    filtered.forEach(guest => {
+      const card = document.createElement('article');
+      card.className = 'browse-card guest-card';
+      const appearing = guest.eventTitles?.length ? `<p class="card-people"><strong>Friday programming:</strong> ${escapeHTML(guest.eventTitles.slice(0, 4).join(' · '))}${guest.eventTitles.length > 4 ? '…' : ''}</p>` : '';
+      card.innerHTML = `<div class="browse-card-top"><div>${guest.highlighted ? '<span class="eyebrow">FRIDAY HIGHLIGHT</span>' : '<span class="eyebrow">FRIDAY PROGRAMMING</span>'}<h3>${escapeHTML(guest.name)}</h3></div><span class="category-pill">${escapeHTML(guest.type || 'Guest')}</span></div>${guest.knownFor ? `<p class="location-line">${escapeHTML(guest.knownFor)}</p>` : ''}${guest.fridayNote ? `<p>${escapeHTML(guest.fridayNote)}</p>` : ''}${appearing}<div class="card-actions"></div>`;
+      const actions = card.querySelector('.card-actions');
+      if (guest.eventId) {
+        const event = events().find(e => e.id === guest.eventId);
+        if (event) {
+          const button = document.createElement('button');
+          button.className = isSaved(event.id) ? 'saved-button' : 'primary';
+          button.type = 'button';
+          button.textContent = isSaved(event.id) ? '✓ Event saved' : '+ Save event';
+          button.addEventListener('click', () => toggleSaved(event.id));
+          actions.appendChild(button);
+        }
+      }
+      if (guest.locationId) {
+        const nav = document.createElement('button');
+        nav.className = 'secondary';
+        nav.type = 'button';
+        nav.textContent = 'Navigate';
+        nav.addEventListener('click', () => navigateToItem(guest));
+        actions.appendChild(nav);
+      }
+      if (guest.sourceUrl) actions.appendChild(externalLink(guest.sourceUrl, 'Source'));
+      list.appendChild(card);
+    });
+  }
+
+  function renderExhibitors() {
+    const query = el('exhibitorSearch').value.trim().toLowerCase();
+    const filtered = exhibitors().filter(item => [item.name, item.booth, item.artistTable, item.category, item.note].join(' ').toLowerCase().includes(query));
+    const list = el('exhibitorList');
+    list.innerHTML = '';
+    filtered.forEach(item => {
+      const card = document.createElement('article');
+      card.className = 'browse-card exhibitor-card';
+      const spot = item.booth ? `Booth ${item.booth}` : item.artistTable ? `Artist Alley ${item.artistTable}` : eventLocationLabel(item);
+      card.innerHTML = `<div class="browse-card-top"><div><span class="eyebrow">${escapeHTML(item.category || 'EXHIBITOR')}</span><h3>${escapeHTML(item.name)}</h3></div>${item.booth ? `<span class="booth-pill">#${escapeHTML(item.booth)}</span>` : ''}</div><p class="location-line">${escapeHTML(spot)}</p><p>${escapeHTML(item.note || '')}</p><div class="card-actions"></div>`;
+      const actions = card.querySelector('.card-actions');
+      if (item.booth && window.NYCC_BOOTHS?.[item.booth]) {
+        const show = document.createElement('button');
+        show.className = 'primary';
+        show.type = 'button';
+        show.textContent = 'Show booth';
+        show.addEventListener('click', () => showBoothOnMap(item.booth));
+        actions.appendChild(show);
+        const nav = document.createElement('button');
+        nav.className = 'secondary';
+        nav.type = 'button';
+        nav.textContent = 'Navigate';
+        nav.addEventListener('click', () => navigateToItem({ booth: item.booth }));
+        actions.appendChild(nav);
+      } else if (item.locationId) {
+        const nav = document.createElement('button');
+        nav.className = 'primary';
+        nav.type = 'button';
+        nav.textContent = 'Navigate';
+        nav.addEventListener('click', () => navigateToItem(item));
+        actions.appendChild(nav);
+      }
+      if (item.sourceUrl) actions.appendChild(externalLink(item.sourceUrl, 'Info'));
+      list.appendChild(card);
+    });
+  }
+
+  function externalLink(url, label) {
+    const a = document.createElement('a');
+    a.className = 'secondary link-button small-action';
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.href = url;
+    a.textContent = `${label} ↗`;
+    return a;
+  }
+
   function locationSortEntries(includeHidden = false) {
-    return Object.entries(window.NYCC_LOCATIONS)
-      .filter(([, l]) => includeHidden || !l.hidden)
+    return Object.entries(window.NYCC_LOCATIONS || {})
+      .filter(([, loc]) => includeHidden || !loc.hidden)
       .sort((a, b) => `${a[1].floor} ${a[1].name}`.localeCompare(`${b[1].floor} ${b[1].name}`, undefined, { numeric: true }));
   }
 
@@ -207,7 +414,7 @@
 
   function initMapSelect() {
     const select = el('mapSelect');
-    Object.entries(window.NYCC_MAPS).forEach(([key, map]) => {
+    Object.entries(window.NYCC_MAPS || {}).forEach(([key, map]) => {
       const opt = document.createElement('option');
       opt.value = key;
       opt.textContent = map.name;
@@ -228,25 +435,36 @@
     });
     document.querySelectorAll('.panel').forEach(panel => panel.classList.toggle('active', panel.id === `tab-${name}`));
     if (name === 'map') renderMap();
+    if (name === 'guests') renderGuests();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function navigateToEvent(event) {
-    activeBooth = event.booth || null;
-    destinationId = event.locationId || 'l3_show_floor';
+  function navigateToItem(item) {
+    activeBooth = item.booth || null;
+    destinationId = item.locationId || (item.booth ? 'l3_show_floor' : destinationId);
+    if (!window.NYCC_LOCATIONS[destinationId]) return;
     el('destinationSelect').value = destinationId;
     buildAndRenderRoute();
     switchTab('navigate');
   }
 
+  function showBoothOnMap(booth) {
+    activeBooth = booth;
+    destinationId = 'l3_show_floor';
+    el('destinationSelect').value = destinationId;
+    activeMap = 'showfloor';
+    el('mapSelect').value = activeMap;
+    renderMap();
+    switchTab('map');
+  }
+
   function buildGraph() {
     const graph = {};
-    Object.keys(window.NYCC_LOCATIONS).forEach(id => { graph[id] = []; });
-    window.NYCC_EDGES.forEach(edge => {
-      const [a, b, minutes, note] = edge;
+    Object.keys(window.NYCC_LOCATIONS || {}).forEach(id => { graph[id] = []; });
+    (window.NYCC_EDGES || []).forEach(([a, b, edgeMinutes, note]) => {
       if (!graph[a] || !graph[b]) return;
-      graph[a].push({ to: b, minutes, note });
-      graph[b].push({ to: a, minutes, note });
+      graph[a].push({ to: b, minutes: edgeMinutes, note });
+      graph[b].push({ to: a, minutes: edgeMinutes, note });
     });
     return graph;
   }
@@ -254,9 +472,8 @@
   function shortestPath(start, end) {
     if (start === end) return { path: [start], minutes: 0, edges: [] };
     const graph = buildGraph();
-    const dist = {};
-    const prev = {};
-    const prevEdge = {};
+    if (!graph[start] || !graph[end]) return null;
+    const dist = {}, prev = {}, prevEdge = {};
     const unvisited = new Set(Object.keys(graph));
     Object.keys(graph).forEach(id => { dist[id] = Infinity; });
     dist[start] = 0;
@@ -270,15 +487,15 @@
       if (current === null || best === Infinity) break;
       unvisited.delete(current);
       if (current === end) break;
-      for (const edge of graph[current]) {
-        if (!unvisited.has(edge.to)) continue;
+      graph[current].forEach(edge => {
+        if (!unvisited.has(edge.to)) return;
         const candidate = dist[current] + edge.minutes;
         if (candidate < dist[edge.to]) {
           dist[edge.to] = candidate;
           prev[edge.to] = current;
           prevEdge[edge.to] = edge;
         }
-      }
+      });
     }
 
     if (!Number.isFinite(dist[end])) return null;
@@ -286,23 +503,12 @@
     const edges = [];
     let cursor = end;
     while (cursor) {
-      path.push(cursor);
-      if (prevEdge[cursor]) edges.push(prevEdge[cursor]);
+      path.unshift(cursor);
+      if (cursor === start) break;
+      edges.unshift(prevEdge[cursor]);
       cursor = prev[cursor];
     }
-    path.reverse();
-    edges.reverse();
     return { path, minutes: dist[end], edges };
-  }
-
-  function routeStepText(fromId, toId, edge) {
-    const from = window.NYCC_LOCATIONS[fromId];
-    const to = window.NYCC_LOCATIONS[toId];
-    if (edge && edge.note) return edge.note;
-    const fromBase = from.floor.split(' • ')[0];
-    const toBase = to.floor.split(' • ')[0];
-    if (fromBase !== toBase) return `Change floors: continue to ${to.name} on ${to.floor}.`;
-    return `Continue to ${to.name}.`;
   }
 
   function buildAndRenderRoute() {
@@ -313,90 +519,62 @@
     const card = el('routeCard');
     if (!route) {
       card.hidden = false;
-      el('routeTitle').textContent = 'No route available';
+      el('routeTitle').textContent = 'No mapped route';
       el('routeMinutes').textContent = '—';
-      el('routeSteps').innerHTML = '<li>This destination is not connected in the current indoor map graph.</li>';
+      el('routeSteps').innerHTML = '<li>Choose another nearby landmark. This routing graph intentionally avoids inventing connections not shown on the official map.</li>';
       activeRoute = null;
       return;
     }
+
     activeRoute = route;
-    const from = window.NYCC_LOCATIONS[currentLocationId];
-    const to = window.NYCC_LOCATIONS[destinationId];
-    card.hidden = false;
-    el('routeTitle').textContent = activeBooth ? `${from.name} → Booth ${activeBooth}` : `${from.name} → ${to.name}`;
-    el('routeMinutes').textContent = Math.max(1, Math.round(route.minutes + (activeBooth ? 3 : 0)));
-
-    const steps = el('routeSteps');
-    steps.innerHTML = '';
-    if (route.path.length === 1) {
-      const li = document.createElement('li');
-      li.textContent = 'You are already at the mapped destination area.';
-      steps.appendChild(li);
-    } else {
-      for (let i = 0; i < route.path.length - 1; i++) {
-        const fromId = route.path[i];
-        const toId = route.path[i + 1];
-        const li = document.createElement('li');
-        li.textContent = routeStepText(fromId, toId, route.edges[i]);
-        const small = document.createElement('small');
-        small.textContent = `${window.NYCC_LOCATIONS[fromId].name} → ${window.NYCC_LOCATIONS[toId].name}`;
-        li.appendChild(small);
-        steps.appendChild(li);
+    const start = window.NYCC_LOCATIONS[currentLocationId];
+    const end = window.NYCC_LOCATIONS[destinationId];
+    el('routeTitle').textContent = activeBooth ? `${start.name} → Booth ${activeBooth}` : `${start.name} → ${end.name}`;
+    el('routeMinutes').textContent = String(route.minutes + (activeBooth ? 4 : 0));
+    const steps = [];
+    route.path.forEach((id, index) => {
+      const loc = window.NYCC_LOCATIONS[id];
+      if (index === 0) steps.push(`<li><strong>Start:</strong> ${escapeHTML(loc.name)}<small>${escapeHTML(loc.floor)}</small></li>`);
+      else {
+        const edge = route.edges[index - 1];
+        steps.push(`<li>${edge?.note ? escapeHTML(edge.note) : `Continue to ${escapeHTML(loc.name)}.`}<small>${escapeHTML(loc.name)} · about ${edge?.minutes || 1} min</small></li>`);
       }
-    }
-    if (activeBooth) {
-      const booth = window.NYCC_BOOTHS[activeBooth];
-      const li = document.createElement('li');
-      li.textContent = booth
-        ? `On the Level 3 show floor, use the map marker to find booth ${activeBooth}.`
-        : `Booth ${activeBooth} is not indexed in the supplied show-floor map.`;
-      steps.appendChild(li);
-    }
-
-    const destMap = activeBooth ? 'showfloor' : to.map;
-    activeMap = destMap;
-    el('mapSelect').value = activeMap;
+    });
+    if (activeBooth) steps.push(`<li><strong>Enter the show floor and continue to Booth ${escapeHTML(activeBooth)}.</strong><small>Use the red booth marker on the detailed Level 3 Show Floor map.</small></li>`);
+    el('routeSteps').innerHTML = steps.join('');
+    card.hidden = false;
     renderMap();
   }
 
   function renderMap() {
-    const map = window.NYCC_MAPS[activeMap];
+    const map = window.NYCC_MAPS?.[activeMap];
     if (!map) return;
     const image = el('mapImage');
     image.src = map.image;
-    image.alt = `${map.name} — official NYCC 2026 map`;
-    el('mapSelect').value = activeMap;
-
-    const markers = el('mapMarkers');
-    markers.innerHTML = '';
+    image.alt = `NYCC 2026 ${map.name} map`;
     const overlay = el('mapOverlay');
+    const markers = el('mapMarkers');
     overlay.innerHTML = '';
+    markers.innerHTML = '';
 
-    const current = window.NYCC_LOCATIONS[currentLocationId];
-    const destination = window.NYCC_LOCATIONS[destinationId];
-
-    if (activeRoute && activeRoute.path.length > 1) {
-      for (let i = 0; i < activeRoute.path.length - 1; i++) {
-        const a = window.NYCC_LOCATIONS[activeRoute.path[i]];
-        const b = window.NYCC_LOCATIONS[activeRoute.path[i + 1]];
-        if (a.map !== activeMap || b.map !== activeMap) continue;
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
-        line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+    if (activeRoute && !activeBooth) {
+      const points = activeRoute.path.map(id => window.NYCC_LOCATIONS[id]).filter(loc => loc?.map === activeMap);
+      if (points.length > 1) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        line.setAttribute('points', points.map(p => `${p.x},${p.y}`).join(' '));
         line.setAttribute('class', 'route-line');
         overlay.appendChild(line);
       }
     }
 
-    Object.entries(window.NYCC_LOCATIONS)
-      .filter(([, loc]) => loc.map === activeMap && !loc.hidden)
+    const current = window.NYCC_LOCATIONS[currentLocationId];
+    const destination = window.NYCC_LOCATIONS[destinationId];
+    Object.entries(window.NYCC_LOCATIONS || {})
+      .filter(([id, loc]) => loc.map === activeMap && (!loc.hidden || id === currentLocationId || (!activeBooth && id === destinationId)))
       .forEach(([id, loc]) => {
-        const classes = ['map-marker'];
-        if (id === currentLocationId) classes.push('current');
-        if (id === destinationId && !activeBooth) classes.push('destination');
         const button = document.createElement('button');
         button.type = 'button';
-        button.className = classes.join(' ');
+        button.className = `map-marker${id === currentLocationId ? ' current' : ''}${!activeBooth && id === destinationId ? ' destination' : ''}`;
         button.style.left = `${loc.x}%`;
         button.style.top = `${loc.y}%`;
         button.setAttribute('aria-label', loc.name);
@@ -411,22 +589,22 @@
         markers.appendChild(button);
       });
 
-    if (activeBooth && activeMap === 'showfloor' && window.NYCC_BOOTHS[activeBooth]) {
-      const b = window.NYCC_BOOTHS[activeBooth];
+    if (activeBooth && activeMap === 'showfloor' && window.NYCC_BOOTHS?.[activeBooth]) {
+      const booth = window.NYCC_BOOTHS[activeBooth];
       const marker = document.createElement('button');
       marker.type = 'button';
       marker.className = 'map-marker booth';
-      marker.style.left = `${b.x}%`;
-      marker.style.top = `${b.y}%`;
+      marker.style.left = `${booth.x}%`;
+      marker.style.top = `${booth.y}%`;
       marker.setAttribute('aria-label', `Booth ${activeBooth}`);
       marker.title = `Booth ${activeBooth}`;
       markers.appendChild(marker);
     }
 
     const legend = [];
-    if (current && current.map === activeMap) legend.push('<span><i class="legend-dot current"></i>Your selected indoor start</span>');
-    if (!activeBooth && destination && destination.map === activeMap) legend.push('<span><i class="legend-dot destination"></i>Destination</span>');
-    if (activeBooth && activeMap === 'showfloor') legend.push(`<span><i class="legend-dot booth"></i>Booth ${activeBooth}</span>`);
+    if (current?.map === activeMap) legend.push('<span><i class="legend-dot current"></i>Your selected indoor start</span>');
+    if (!activeBooth && destination?.map === activeMap) legend.push('<span><i class="legend-dot destination"></i>Destination</span>');
+    if (activeBooth && activeMap === 'showfloor') legend.push(`<span><i class="legend-dot booth"></i>Booth ${escapeHTML(activeBooth)}</span>`);
     legend.push('<span>Tap a black marker to route there</span>');
     el('mapLegend').innerHTML = legend.join('');
   }
@@ -438,7 +616,7 @@
       msg.textContent = 'Enter a four-digit booth number.';
       return;
     }
-    if (!window.NYCC_BOOTHS[booth]) {
+    if (!window.NYCC_BOOTHS?.[booth]) {
       msg.textContent = `Booth ${booth} was not found in the indexed map labels.`;
       return;
     }
@@ -453,7 +631,6 @@
 
   function openEventDialog() {
     el('eventForm').reset();
-    el('eventDate').value = selectedDay;
     el('eventDialog').showModal();
   }
 
@@ -463,14 +640,12 @@
 
   function saveEventFromForm() {
     const title = el('eventTitle').value.trim();
-    const date = el('eventDate').value;
     const start = el('eventStart').value;
     const end = el('eventEnd').value;
     const locationId = el('eventLocation').value || undefined;
     const booth = el('eventBooth').value.trim() || undefined;
     const notes = el('eventNotes').value.trim() || undefined;
-
-    if (!title || !date || !start) return;
+    if (!title || !start) return;
     if (booth && !/^\d{4}$/.test(booth)) {
       toast('Booth number must be four digits');
       return;
@@ -478,46 +653,48 @@
     personalEvents.push({
       id: `personal-${Date.now()}`,
       title,
-      date,
+      date: FRIDAY,
       start,
       end: end || undefined,
       locationId: booth ? undefined : locationId,
       booth,
       notes
     });
-    savePersonalEvents();
-    selectedDay = date;
-    renderDayTabs();
-    renderSchedule();
+    savePlan();
+    renderMyFriday();
     closeEventDialog();
-    toast('Event saved');
+    toast('Added to My Friday');
   }
 
-  function exportEvents() {
-    const data = JSON.stringify(personalEvents, null, 2);
+  function exportPlan() {
+    const data = JSON.stringify({ version: 2, date: FRIDAY, savedOfficialIds, personalEvents }, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'nycc-2026-my-events.json';
+    a.download = 'nycc-2026-friday-plan.json';
     document.body.appendChild(a);
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  function importEvents(file) {
+  function importPlan(file) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
       try {
         const parsed = JSON.parse(reader.result);
-        if (!Array.isArray(parsed)) throw new Error('Expected an array');
-        personalEvents = parsed.filter(e => e && typeof e === 'object' && e.title && e.date && e.start)
-          .map((e, i) => ({ ...e, id: e.id || `imported-${Date.now()}-${i}` }));
-        savePersonalEvents();
-        renderSchedule();
-        toast(`Imported ${personalEvents.length} events`);
+        if (Array.isArray(parsed)) {
+          personalEvents = parsed.filter(e => e && e.title && e.start).map((e, i) => ({ ...e, date: FRIDAY, id: e.id || `imported-${Date.now()}-${i}` }));
+        } else if (parsed && typeof parsed === 'object') {
+          personalEvents = Array.isArray(parsed.personalEvents) ? parsed.personalEvents.filter(e => e && e.title && e.start).map(e => ({ ...e, date: FRIDAY })) : [];
+          savedOfficialIds = Array.isArray(parsed.savedOfficialIds) ? parsed.savedOfficialIds.filter(id => events().some(event => event.id === id)) : [];
+        } else throw new Error('Invalid plan');
+        savePlan();
+        renderMyFriday();
+        renderBrowse();
+        toast('Friday plan imported');
       } catch (_) {
         toast('Could not import that JSON file');
       }
@@ -542,16 +719,14 @@
   }
 
   function updateMapLinks(position) {
-    const google = el('googleMapsLink');
-    const apple = el('appleMapsLink');
     const destination = encodeURIComponent(JAVITS.address);
     if (position) {
       const origin = `${position.coords.latitude},${position.coords.longitude}`;
-      google.href = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${destination}&travelmode=walking`;
-      apple.href = `https://maps.apple.com/?saddr=${encodeURIComponent(origin)}&daddr=${destination}&dirflg=w`;
+      el('googleMapsLink').href = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${destination}&travelmode=walking`;
+      el('appleMapsLink').href = `https://maps.apple.com/?saddr=${encodeURIComponent(origin)}&daddr=${destination}&dirflg=w`;
     } else {
-      google.href = `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=walking`;
-      apple.href = `https://maps.apple.com/?daddr=${destination}&dirflg=w`;
+      el('googleMapsLink').href = `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=walking`;
+      el('appleMapsLink').href = `https://maps.apple.com/?daddr=${destination}&dirflg=w`;
     }
   }
 
@@ -570,15 +745,10 @@
       el('gpsDetails').hidden = false;
       el('distanceToJavits').textContent = formatDistance(distance);
       el('gpsAccuracy').textContent = `±${Math.round(accuracy)} m`;
-      el('gpsStatus').textContent = distance < 350
-        ? 'You appear to be near Javits. Switch to indoor landmark routing once inside.'
-        : 'Live location is updating while this page remains open.';
+      el('gpsStatus').textContent = distance < 350 ? 'You appear to be near Javits. Switch to indoor landmark routing once inside.' : 'Live location is updating while this page remains open.';
       updateMapLinks(position);
     }, error => {
-      const message = error.code === 1
-        ? 'Location permission was denied. You can still use the indoor maps manually.'
-        : 'Your location could not be determined right now.';
-      el('gpsStatus').textContent = message;
+      el('gpsStatus').textContent = error.code === 1 ? 'Location permission was denied. You can still use the indoor maps manually.' : 'Your location could not be determined right now.';
       stopGPS(false);
     }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 12000 });
   }
@@ -602,12 +772,8 @@
 
   function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {
-        el('offlineBadge').textContent = 'Online only';
-      });
-    } else {
-      el('offlineBadge').textContent = 'Online only';
-    }
+      navigator.serviceWorker.register('./sw.js?v=7').catch(() => { el('offlineBadge').textContent = 'Friday-first · Online only'; });
+    } else el('offlineBadge').textContent = 'Friday-first · Online only';
   }
 
   function wireEvents() {
@@ -616,8 +782,13 @@
     el('closeDialogBtn').addEventListener('click', closeEventDialog);
     el('cancelEventBtn').addEventListener('click', closeEventDialog);
     el('eventForm').addEventListener('submit', event => { event.preventDefault(); saveEventFromForm(); });
-    el('exportBtn').addEventListener('click', exportEvents);
-    el('importInput').addEventListener('change', event => importEvents(event.target.files[0]));
+    el('browseFridayBtn').addEventListener('click', () => switchTab('browse'));
+    el('exportBtn').addEventListener('click', exportPlan);
+    el('importInput').addEventListener('change', event => importPlan(event.target.files[0]));
+    el('eventSearch').addEventListener('input', renderBrowse);
+    el('eventCategory').addEventListener('change', renderBrowse);
+    el('guestSearch').addEventListener('input', renderGuests);
+    el('exhibitorSearch').addEventListener('input', renderExhibitors);
 
     el('currentLocationSelect').addEventListener('change', () => {
       currentLocationId = el('currentLocationSelect').value;
@@ -635,7 +806,7 @@
       const b = el('destinationSelect').value;
       if (!window.NYCC_LOCATIONS[b]) return;
       el('currentLocationSelect').value = b;
-      if ([...el('destinationSelect').options].some(o => o.value === a)) el('destinationSelect').value = a;
+      if ([...el('destinationSelect').options].some(option => option.value === a)) el('destinationSelect').value = a;
       currentLocationId = el('currentLocationSelect').value;
       destinationId = el('destinationSelect').value;
       activeBooth = null;
@@ -648,22 +819,24 @@
       renderMap();
       switchTab('map');
     });
-
     el('boothSearchForm').addEventListener('submit', event => {
       event.preventDefault();
       findBooth(el('boothSearch').value);
     });
-
     el('gpsBtn').addEventListener('click', startGPS);
     el('gpsStopBtn').addEventListener('click', () => stopGPS(true));
   }
 
   function init() {
-    renderDayTabs();
-    renderSchedule();
+    populateEventCategories();
     initSelects();
     initMapSelect();
     wireEvents();
+    renderMyFriday();
+    renderBrowse();
+    renderActivities();
+    renderGuests();
+    renderExhibitors();
     updateMapLinks(null);
     renderMap();
     registerServiceWorker();

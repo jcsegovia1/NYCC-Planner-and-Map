@@ -1,11 +1,11 @@
 {
-  "name": "NYCC 2026 Planner",
-  "short_name": "NYCC Planner",
-  "description": "Personal NYCC 2026 schedule and Javits indoor navigation helper.",
+  "name": "NYCC 2026 Friday Planner",
+  "short_name": "NYCC Friday",
+  "description": "Friday-first NYCC 2026 schedule, discovery and Javits navigation helper.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f4f2ed",
+  "background_color": "#111111",
   "theme_color": "#171717",
   "icons": [
     {"src":"assets/icon-192.png","sizes":"192x192","type":"image/png"},
